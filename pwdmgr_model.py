@@ -54,13 +54,20 @@ def write_to_json(configuration):
 	config["passwords"] = [d.__dict__ for d in config["passwords"]]
 	return json.dumps(config, sort_keys=True, indent=4, separators=(',', ': '))
 
-def test():
-	"""Just for testing basic creation and JSON serialization.
+
+def create_test_config():
+	"""Create dummy config for testing.
 	"""
 	conf = Configuration()
 	conf.passwords.extend([Password("label1", "name1", "pwd1", "url1", ["tag1", "tag2"], "changed1"),
 	                       Password("label2", "name2", "pwd2", "url2", ["tag2", "tag3"], "changed2"),
 			               Password("label3", "name3", "pwd3", "url3", ["tag3", "tag4"], "changed3"),])
+	return conf
+
+def test():
+	"""Just for testing basic creation and JSON serialization.
+	"""
+	conf = create_test_config()
 	s = write_to_json(conf)
 	conf2 = load_from_json(s)
 	print(s)
@@ -69,5 +76,5 @@ def test():
 	assert str(conf) == str(conf2)
 
 # testing stuff
-if __name__=="__main__":
+if __name__ == "__main__":
 	test()
