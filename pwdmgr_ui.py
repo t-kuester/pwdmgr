@@ -18,40 +18,36 @@ import os
 
 class PwdMgrFrame(tkinter.Frame):
 	
-	def __init__(self, root, conf):
+	def __init__(self, root, conf, filename):
 		super().__init__(root)
 		self.config = conf
+		self.filename = filename
 		
 		self.grid()
 		
 		# TODO
 		# password combo (later: list)
-		# details area
-		# button: save
-		# button: copy
-		# button: open
-		# button: changed now
+		# buttons: copy, open, changed now, generate
 		# search/filter
-		# button: generate
 		
 		# Buttons: Add/Remove
 		tkinter.Button(self, text="Add", command=self.add_password).grid(row=1, column=0, sticky="EW")
 		tkinter.Button(self, text="Remove", command=self.remove_password).grid(row=1, column=1, sticky="EW")
+		tkinter.Button(self, text="Save", command=self.save).grid(row=1, column=2, sticky="EW")
 		
 		# Optionmenu with passwords in the config
 		self.selected = tkinter.StringVar()
 		self.selected.trace("w", self.update_selected)
 		self.passwords = tkinter.OptionMenu(self, self.selected, *(p.label for p in self.config.passwords))
-		self.passwords.grid(row=2, column=0, columnspan=2, sticky="EW")
+		self.passwords.grid(row=2, column=0, columnspan=3, sticky="EW")
 		
 		# PasswordPanel showing the selected password
 		self.panel = PasswordPanel(self)
-		self.panel.grid(row=3, column=0, columnspan=2, sticky="EW")
+		self.panel.grid(row=3, column=0, columnspan=3, sticky="EW")
 		
-		# TODO add tracer to dirty boolean var to enable/disable save button
-		
-		# TODO add buttons
-
+	def save(self):
+		self.panel.update_password()
+		pwdmgr_core.save_encrypt(self.filename, self.config)
 
 	def get_selected(self):
 		label = self.selected.get()
@@ -65,6 +61,7 @@ class PwdMgrFrame(tkinter.Frame):
 			menu.add_command(label=l, command=lambda v=l: self.selected.set(v))
 
 	def update_selected(self, *args):
+		self.panel.update_password()
 		self.panel.set_password(self.get_selected())
 
 	def add_password(self):
@@ -83,8 +80,10 @@ class PwdMgrFrame(tkinter.Frame):
 
 class PasswordPanel(tkinter.Canvas):
 
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+	def __init__(self, parent):
+		super().__init__(parent)
+		self.ui = parent
+		
 		self.label  = tkinter.StringVar()
 		self.name   = tkinter.StringVar()
 		self.pwd    = tkinter.StringVar()
@@ -97,16 +96,12 @@ class PasswordPanel(tkinter.Canvas):
 		for r, (l, v) in enumerate(zip(labels, varbls)):
 			tkinter.Label(self, text=l).grid(row=r, column=0, sticky="NW")
 			tkinter.Entry(self, textvariable=v).grid(row=r, column=1, sticky="W")
-			v.trace("w", self.set_dirty)
 
 		self.set_password(None)
 
-	def set_dirty(self, *args):
-		self.dirty = True
-	
 	def set_password(self, pwd):
+		print("set pwd", pwd)
 		self.password = pwd
-		self.dirty = False
 		self.label.set(pwd.label if pwd else "") 
 		self.name.set(pwd.username if pwd else "")
 		self.pwd.set(pwd.password if pwd else "")
@@ -115,12 +110,13 @@ class PasswordPanel(tkinter.Canvas):
 		self.tags.set(pwd.tags if pwd else "")
 
 	def update_password(self):
-		self.password.label = self.label.get()
-		self.password.username = self.name.get()
-		self.password.password = self.pwd.get()
-		self.password.url = self.url.get()
-		self.password.last_changed = self.change.get()
-		self.password.tags = self.tags.get()
+		if self.password:
+			self.password.label = self.label.get()
+			self.password.username = self.name.get()
+			self.password.password = self.pwd.get()
+			self.password.url = self.url.get()
+			self.password.last_changed = self.change.get()
+			self.password.tags = self.tags.get()
 
 
 if __name__ == "__main__":
@@ -131,8 +127,6 @@ if __name__ == "__main__":
 		conf = pwdmgr_model.create_test_config()
 
 	root = tkinter.Tk()
-	frame = PwdMgrFrame(root, conf)
+	frame = PwdMgrFrame(root, conf, filename)
 	root.title("Password Manager")
 	root.mainloop()
-
-	pwdmgr_core.save_encrypt(filename, conf)
