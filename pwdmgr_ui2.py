@@ -40,9 +40,6 @@ class PwdMgrFrame(tkinter.Frame):
 		self.table.show_passwords(self.conf.passwords)
 		# TODO wrap table in scrollpane
 
-		# TODO
-		# buttons: copy, open, changed now, generate
-		
 	def clear_fltr(self):
 		print("clearing fitler")
 		self.fltr.set("")
@@ -53,10 +50,12 @@ class PwdMgrFrame(tkinter.Frame):
 		filtered = [p for p in self.conf.passwords
 		            if any(s in getattr(p, a) for a in ATTRIBUTES)]
 		self.table.show_passwords(filtered)
+		return filtered
 		
 	def save(self):
-		print("saving...")
-		pwdmgr_core.save_encrypt(self.filename, self.conf)
+		if tkinter.messagebox.askokcancel("Save", "Save changes?"):
+			print("saving...")
+			pwdmgr_core.save_encrypt(self.filename, self.conf)
 
 	def add_password(self):
 		print("adding password")
@@ -65,9 +64,11 @@ class PwdMgrFrame(tkinter.Frame):
 		self.filter_list()
 		
 	def remove_password(self):
-		print("removing password")
-		# TODO how to determine which one? show dialogue? get row of widget with focus?
-		self.filter_list()
+		if tkinter.messagebox.askokcancel("Remove", "Remove all shown entries?"):
+			print("removing password")
+			for entry in self.filter_list():
+				self.conf.passwords.remove(entry)
+			self.clear_fltr()
 
 
 class PwdTable(tkinter.Canvas):

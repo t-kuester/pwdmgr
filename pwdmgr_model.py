@@ -11,6 +11,8 @@ password, tags, date of last change, etc.
 # from config import *
 import json
 
+# TODO replace with collections.namedtuple?
+
 class Password:
 	"""Class representing a single password.
 	"""
