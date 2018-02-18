@@ -61,9 +61,9 @@ def create_test_config():
 	"""Create dummy config for testing.
 	"""
 	conf = Configuration()
-	conf.passwords.extend([Password("label1", "name1", "pwd1", "url1", ["tag1", "tag2"], "changed1"),
-	                       Password("label2", "name2", "pwd2", "url2", ["tag2", "tag3"], "changed2"),
-			               Password("label3", "name3", "pwd3", "url3", ["tag3", "tag4"], "changed3"),])
+	conf.passwords.extend([Password("label1", "name1", "pwd1", "url1", "tag1, tag2", "changed1"),
+	                       Password("label2", "name2", "pwd2", "url2", "tag2, tag3", "changed2"),
+			               Password("label3", "name3", "pwd3", "url3", "tag3, tag4", "changed3"),])
 	return conf
 
 def test():

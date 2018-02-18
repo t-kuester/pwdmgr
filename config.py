@@ -13,4 +13,6 @@ USER_DIR = os.environ["HOME"]
 
 DEFAULT_PASSWORDS_FILE = os.path.join(USER_DIR, "pwds.json")
 
+DEFAULT_USER = "xxx.xxx@xxx.xxx"
+
 DATE_FORMAT = "%Y-%m-%d"
