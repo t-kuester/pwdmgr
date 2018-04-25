@@ -16,8 +16,6 @@ import pwdmgr_core, pwdmgr_model, config
 import os
 
 
-ATTRIBUTES = ("label", "username", "password", "url", "tags", "last_changed")
-
 class PwdMgrFrame(tkinter.Frame):
 	
 	def __init__(self, root, conf, filename):
@@ -43,12 +41,11 @@ class PwdMgrFrame(tkinter.Frame):
 	def clear_fltr(self):
 		print("clearing fitler")
 		self.fltr.set("")
-		
+
 	def filter_list(self, *args):
 		print("filtering...")
 		s = self.fltr.get()
-		filtered = [p for p in self.conf.passwords
-		            if any(s in getattr(p, a) for a in ATTRIBUTES)]
+		filtered = [p for p in self.conf.passwords if any(s in v for v in p if v)]
 		self.table.show_passwords(filtered)
 		return filtered
 		
@@ -82,13 +79,13 @@ class PwdTable(tkinter.Canvas):
 		for child in self.grid_slaves():
 			child.grid_forget()
 		# add row with the attribute names
-		for col, attribute in enumerate(ATTRIBUTES):
+		for col, attribute in enumerate(pwdmgr_model.Password._fields):
 			tkinter.Label(self, text=attribute).grid(row=0, column=col, sticky="NW")
 		# add rows with filtered passwords
 		for row, pwd in enumerate(passwords, start=1):
-			for col, attribute in enumerate(ATTRIBUTES):
+			for col, value in enumerate(pwd):
 				var = tkinter.StringVar()
-				var.set(getattr(pwd, attribute))
+				var.set(value)
 				tkinter.Entry(self, textvariable=var).grid(row=row, column=col, sticky="W")
 				var.trace("w", lambda *args, v=var, a=attribute, p=pwd: setattr(p, a, v.get()))
 
