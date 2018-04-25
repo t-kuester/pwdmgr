@@ -11,36 +11,11 @@ password, tags, date of last change, etc.
 # from config import *
 import json
 
-# TODO replace with collections.namedtuple?
+import collections
 
-class Password:
-	"""Class representing a single password.
-	"""
-	
-	def __init__(self, label, username, password, url, tags, last_changed):
-		self.label = label
-		self.username = username
-		self.password = password
-		self.url = url
-		self.tags = tags
-		self.last_changed = last_changed
-		
-	def __repr__(self):
-		return "Password(%r, %r, %r, %r, %r, %r)" % (self.label, self.username,
-				self.password, self.url, self.tags, self.last_changed)
+Password = collections.namedtuple("Password", "label username password url tags last_changed".split())
 
-
-class Configuration:
-	"""Configuration for the password manager. Currently, this only wraps a list
-	of passwords, but might be extended with more preferences (or removed).
-	"""
-	
-	def __init__(self, passwords=None):
-		self.passwords = passwords or []
-		
-	def __repr__(self):
-		return "Configuration(%r)" % (self.passwords)
-
+Configuration = collections.namedtuple("Configuration", ["passwords"])
 
 def load_from_json(json_str):
 	"""Load password configuration from JSON string.
@@ -60,11 +35,9 @@ def write_to_json(configuration):
 def create_test_config():
 	"""Create dummy config for testing.
 	"""
-	conf = Configuration()
-	conf.passwords.extend([Password("label1", "name1", "pwd1", "url1", "tag1, tag2", "changed1"),
-	                       Password("label2", "name2", "pwd2", "url2", "tag2, tag3", "changed2"),
-			               Password("label3", "name3", "pwd3", "url3", "tag3, tag4", "changed3"),])
-	return conf
+	return Configuration([Password("label1", "name1", "pwd1", "url1", "tag1, tag2", "changed1"),
+	                      Password("label2", "name2", "pwd2", "url2", "tag2, tag3", "changed2"),
+			              Password("label3", "name3", "pwd3", "url3", "tag3, tag4", "changed3")])
 
 def test():
 	"""Just for testing basic creation and JSON serialization.
