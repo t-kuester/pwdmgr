@@ -22,7 +22,8 @@ import os
 def load_decrypt(filename, passphrase=None):
 	"""Load and decrypt passwords from given file.
 	"""
-	p = os.popen('gpg --decrypt "%s"' % filename)
+	print("decrypting")
+	p = os.popen('gpg --decrypt "%s.gpg"' % filename)
 	s = p.read()
 	# TODO send passphrase to input
 	return pwdmgr_model.load_from_json(s)
@@ -31,18 +32,9 @@ def load_decrypt(filename, passphrase=None):
 def save_encrypt(filename, config):
 	"""Encrypt and save passwords to given file.
 	"""
-	# save to temporary file
-	tempfile = "temp"
-	with open(tempfile, "w") as f:
-		s = pwdmgr_model.write_to_json(config)
-		f.write(s)
-	# encrypt file
 	print("ecrypting")
-	os.system('gpg --recipient "%s" --output "%s" --yes --encrypt "%s"' % (DEFAULT_USER, filename, tempfile))
-	# shred temporary file
-	print("shredding")
-	os.system("shred -zu %s" % tempfile)
-	print("done")
+	s = pwdmgr_model.write_to_json(config)
+	os.system('echo \'%s\' | gpg --recipient "%s" --output "%s.gpg" --yes --encrypt' % (s, DEFAULT_USER, filename))
 
 
 def test():
