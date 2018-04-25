@@ -23,9 +23,10 @@ class PwdMgrFrame(tkinter.Frame):
 		self.conf = conf
 		self.filename = filename
 		self.grid()
+		self.next_filter = None
 
 		self.fltr = tkinter.StringVar()
-		self.fltr.trace("w", self.filter_list)
+		self.fltr.trace("w", self.schedule_filter)
 		
 		tkinter.Entry(self, textvariable=self.fltr).grid(row=0, column=0, sticky="EW")
 		tkinter.Button(self, text="<<", command=self.clear_fltr).grid(row=0, column=1, sticky="EW")	
@@ -42,7 +43,12 @@ class PwdMgrFrame(tkinter.Frame):
 		print("clearing fitler")
 		self.fltr.set("")
 
-	def filter_list(self, *args):
+	def schedule_filter(self, *args):
+		if self.next_filter:
+			self.after_cancel(self.next_filter)
+		self.next_filter = self.after(500, self.filter_list)
+
+	def filter_list(self):
 		print("filtering...")
 		s = self.fltr.get()
 		filtered = [p for p in self.conf.passwords if any(s in v for v in p if v)]
