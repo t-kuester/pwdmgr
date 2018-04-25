@@ -31,6 +31,7 @@ def write_to_json(configuration):
 	config["passwords"] = [d.__dict__ for d in config["passwords"]]
 	return json.dumps(config, sort_keys=True, indent=4, separators=(',', ': '))
 
+# TODO load/save using CSV for more compact files?
 
 def create_test_config():
 	"""Create dummy config for testing.

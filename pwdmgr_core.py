@@ -24,6 +24,7 @@ def load_decrypt(filename, passphrase=None):
 	"""
 	print("decrypting")
 	p = os.popen('gpg --decrypt "%s.gpg"' % filename)
+	#~p = os.popen('cat "%s"' % filename)
 	s = p.read()
 	# TODO send passphrase to input
 	return pwdmgr_model.load_from_json(s)
@@ -35,7 +36,24 @@ def save_encrypt(filename, config):
 	print("ecrypting")
 	s = pwdmgr_model.write_to_json(config)
 	os.system('echo \'%s\' | gpg --recipient "%s" --output "%s.gpg" --yes --encrypt' % (s, DEFAULT_USER, filename))
+	#~os.system('echo \'%s\' > "%s"' % (s, filename))
 
+def convert(oldfile):
+	"""Read password file in my own old tabular format and convert to new form.
+	"""
+	import re
+	pwds = []
+	with open(oldfile) as f:
+		for line in f:
+			m = re.match("== (.+) ==", line)
+			if m:
+				tags = m.group(1).lower()
+			elif line.strip():
+				label, name, pwd, misc = map(str.strip, (line[:20], line[20:50], line[50:80], line[80:]))
+				print(tags, label, name, pwd, misc)
+				pwds.append(pwdmgr_model.Password(label, name, pwd, misc, tags, None))
+
+	save_encrypt(DEFAULT_PASSWORDS_FILE, pwdmgr_model.Configuration(pwds))
 
 def test():
 	"""Just for testing loading, saving, encrytion and decryption.
