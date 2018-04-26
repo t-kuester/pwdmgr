@@ -13,7 +13,7 @@ import json
 
 import collections
 
-Password = collections.namedtuple("Password", "label username password url tags last_changed".split())
+Password = collections.namedtuple("Password", "label username password notes tags last_changed".split())
 
 Configuration = collections.namedtuple("Configuration", ["passwords"])
 

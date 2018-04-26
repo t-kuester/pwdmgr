@@ -34,10 +34,20 @@ class PwdMgrFrame(tkinter.Frame):
 		tkinter.Button(self, text="-", command=self.remove_password).grid(row=0, column=3, sticky="EW")
 		tkinter.Button(self, text="w!", command=self.save).grid(row=0, column=4, sticky="EW")
 
-		self.table = PwdTable(self)
-		self.table.grid(row=1, column=0, columnspan=5)
+		# frame within canvas with scroll bars... why does this have to be so hard?
+		canvas = tkinter.Canvas(self, width=1000, height=500)
+
+		self.table = PwdTable(canvas)
 		self.table.show_passwords(self.conf.passwords)
-		# TODO wrap table in scrollpane
+		self.table.bind("<Configure>", lambda event: canvas.configure(scrollregion=canvas.bbox("all")))
+
+		vbar = tkinter.Scrollbar(self, orient="vertical", command=canvas.yview)
+		canvas.configure(yscrollcommand=vbar.set)
+
+		vbar.grid(row=1, column=6, sticky="NS")
+		canvas.grid(row=1, column=0, columnspan=5, sticky="NSEW")
+		canvas.create_window((4,4), window=self.table, anchor="NW")
+
 
 	def clear_fltr(self):
 		print("clearing fitler")
@@ -50,8 +60,8 @@ class PwdMgrFrame(tkinter.Frame):
 
 	def filter_list(self):
 		print("filtering...")
-		s = self.fltr.get()
-		filtered = [p for p in self.conf.passwords if any(s in v for v in p if v)]
+		s = self.fltr.get().lower()
+		filtered = [p for p in self.conf.passwords if any(s in v.lower() for v in p if v)]
 		self.table.show_passwords(filtered)
 		return filtered
 		
@@ -74,19 +84,19 @@ class PwdMgrFrame(tkinter.Frame):
 			self.clear_fltr()
 
 
-class PwdTable(tkinter.Canvas):
+class PwdTable(tkinter.Frame):
 	
-	def __init__(self, parent):
-		super().__init__(parent)
-		self.grid()
+	def __init__(self, parent, **kwargs):
+		super().__init__(parent, **kwargs)
 		
 	def show_passwords(self, passwords):
 		# remove old children from grid
 		for child in self.grid_slaves():
 			child.grid_forget()
 		# add row with the attribute names
-		for col, attribute in enumerate(pwdmgr_model.Password._fields):
-			tkinter.Label(self, text=attribute).grid(row=0, column=col, sticky="NW")
+		if passwords:
+			for col, attribute in enumerate(pwdmgr_model.Password._fields):
+				tkinter.Label(self, text=attribute).grid(row=0, column=col, sticky="NW")
 		# add rows with filtered passwords
 		for row, pwd in enumerate(passwords, start=1):
 			for col, value in enumerate(pwd):
