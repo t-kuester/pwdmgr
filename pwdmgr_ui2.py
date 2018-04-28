@@ -44,9 +44,9 @@ class PwdMgrFrame(tkinter.Frame):
 		vbar = tkinter.Scrollbar(self, orient="vertical", command=canvas.yview)
 		canvas.configure(yscrollcommand=vbar.set)
 
-		vbar.grid(row=1, column=6, sticky="NS")
-		canvas.grid(row=1, column=0, columnspan=5, sticky="NSEW")
-		canvas.create_window((4,4), window=self.table, anchor="NW")
+		vbar.grid(row=1, column=6, sticky="ns")
+		canvas.grid(row=1, column=0, columnspan=5, sticky="nswe")
+		canvas.create_window((4,4), window=self.table, anchor="nw")
 
 
 	def clear_fltr(self):
@@ -61,7 +61,8 @@ class PwdMgrFrame(tkinter.Frame):
 	def filter_list(self):
 		print("filtering...")
 		s = self.fltr.get().lower()
-		filtered = [p for p in self.conf.passwords if any(s in v.lower() for v in p if v)]
+		filtered = [p for p in self.conf.passwords
+		            if any(s in getattr(p, a) for a in pwdmgr_model.ATTRIBUTES)]
 		self.table.show_passwords(filtered)
 		return filtered
 		
@@ -95,15 +96,15 @@ class PwdTable(tkinter.Frame):
 			child.grid_forget()
 		# add row with the attribute names
 		if passwords:
-			for col, attribute in enumerate(pwdmgr_model.Password._fields):
+			for col, attribute in enumerate(pwdmgr_model.ATTRIBUTES):
 				tkinter.Label(self, text=attribute).grid(row=0, column=col, sticky="NW")
 		# add rows with filtered passwords
 		for row, pwd in enumerate(passwords, start=1):
-			for col, value in enumerate(pwd):
+			for col, attr in enumerate(pwdmgr_model.ATTRIBUTES):
 				var = tkinter.StringVar()
-				var.set(value)
+				var.set(getattr(pwd, attr))
 				tkinter.Entry(self, textvariable=var).grid(row=row, column=col, sticky="W")
-				var.trace("w", lambda *args, v=var, a=attribute, p=pwd: setattr(p, a, v.get()))
+				var.trace("w", lambda *args, v=var, a=attr, p=pwd: setattr(p, a, v.get()))
 
 
 if __name__ == "__main__":

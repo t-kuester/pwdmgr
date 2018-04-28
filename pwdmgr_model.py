@@ -11,11 +11,35 @@ password, tags, date of last change, etc.
 # from config import *
 import json
 
-import collections
+ATTRIBUTES = "label", "username", "password", "notes", "tags", "last_changed"
 
-Password = collections.namedtuple("Password", "label username password notes tags last_changed".split())
+class Password:
+	"""Class representing a single password.
+	"""
 
-Configuration = collections.namedtuple("Configuration", ["passwords"])
+	def __init__(self, label, username, password, notes, tags, last_changed):
+		self.label = label
+		self.username = username
+		self.password = password
+		self.notes = notes
+		self.tags = tags
+		self.last_changed = last_changed
+
+	def __repr__(self):
+		return "Password(%r, %r, %r, %r, %r, %r)" % (self.label, self.username,
+				self.password, self.notes, self.tags, self.last_changed)
+
+class Configuration:
+	"""Configuration for the password manager. Currently, this only wraps a list
+	of passwords, but might be extended with more preferences (or removed).
+	"""
+
+	def __init__(self, passwords=None):
+		self.passwords = passwords or []
+
+	def __repr__(self):
+		return "Configuration(%r)" % (self.passwords)
+
 
 def load_from_json(json_str):
 	"""Load password configuration from JSON string.
