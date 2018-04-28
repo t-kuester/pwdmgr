@@ -96,15 +96,23 @@ class PwdTable(tkinter.Frame):
 			child.grid_forget()
 		# add row with the attribute names
 		if passwords:
-			for col, attribute in enumerate(pwdmgr_model.ATTRIBUTES):
-				tkinter.Label(self, text=attribute).grid(row=0, column=col, sticky="NW")
+			for col, attr in enumerate(pwdmgr_model.ATTRIBUTES):
+				b = tkinter.Button(self, text=attr, relief="flat",
+				                   command=self.sort_passwords(passwords, attr))
+				b.grid(row=0, column=col, sticky="ew")
 		# add rows with filtered passwords
 		for row, pwd in enumerate(passwords, start=1):
 			for col, attr in enumerate(pwdmgr_model.ATTRIBUTES):
 				var = tkinter.StringVar()
 				var.set(getattr(pwd, attr))
-				tkinter.Entry(self, textvariable=var).grid(row=row, column=col, sticky="W")
+				tkinter.Entry(self, textvariable=var).grid(row=row, column=col, sticky="w")
 				var.trace("w", lambda *args, v=var, a=attr, p=pwd: setattr(p, a, v.get()))
+
+	def sort_passwords(self, passwords, attribute):
+		def sort_inner():
+			passwords.sort(key=lambda p: getattr(p, attribute))
+			self.show_passwords(passwords)
+		return sort_inner
 
 
 if __name__ == "__main__":
