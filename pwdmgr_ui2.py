@@ -62,7 +62,7 @@ class PwdMgrFrame(tkinter.Frame):
 		print("filtering...")
 		s = self.fltr.get().lower()
 		filtered = [p for p in self.conf.passwords
-		            if any(s in getattr(p, a) for a in pwdmgr_model.ATTRIBUTES)]
+		            if any(s in getattr(p, a).lower() for a in pwdmgr_model.ATTRIBUTES)]
 		self.table.show_passwords(filtered)
 		return filtered
 		
