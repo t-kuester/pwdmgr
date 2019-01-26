@@ -8,6 +8,10 @@ by Tobias Küster, 2018
 - shows passwords in a list and with details
 - provides edit fields for all attributes
 - provides basic search/filter feature
+
+TODO
+- show warning when trying to close without saving changes
+- test whether saving changes worked, e.g. by checking file change date
 - actions for copy to clipboard, open URL, and similar
 """
 
@@ -50,7 +54,7 @@ class PwdMgrFrame(tkinter.Frame):
 
 
 	def clear_fltr(self):
-		print("clearing fitler")
+		print("clearing filter")
 		self.fltr.set("")
 
 	def schedule_filter(self, *args):
@@ -79,7 +83,7 @@ class PwdMgrFrame(tkinter.Frame):
 		
 	def remove_password(self):
 		if tkinter.messagebox.askokcancel("Remove", "Remove all shown entries?"):
-			print("removing password")
+			print("removing passwords")
 			for entry in self.filter_list():
 				self.conf.passwords.remove(entry)
 			self.clear_fltr()

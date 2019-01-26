@@ -9,9 +9,6 @@ decrypting the password files.
 
 For the first version, I'll just call the command line tools; later I'll
 probably switch to some crypto library, but haven't decided which, yet.
-
-In the VERY first iteration this is not doing any encryption at all, just for
-testing, so don't use this for your real passwords yet!
 """
 
 from config import *
@@ -22,7 +19,7 @@ import os
 def load_decrypt(filename, passphrase=None):
 	"""Load and decrypt passwords from given file.
 	"""
-	print("decrypting")
+	print("decrypting...")
 	p = os.popen('gpg --decrypt "%s.gpg"' % filename)
 	#~p = os.popen('cat "%s"' % filename)
 	s = p.read()
@@ -33,9 +30,10 @@ def load_decrypt(filename, passphrase=None):
 def save_encrypt(filename, config):
 	"""Encrypt and save passwords to given file.
 	"""
-	print("ecrypting")
+	print("ecrypting...")
 	s = pwdmgr_model.write_to_json(config)
-	os.system('echo \'%s\' | gpg --recipient "%s" --output "%s.gpg" --yes --encrypt' % (s, DEFAULT_USER, filename))
+	os.system('echo %s | gpg --recipient "%s" --output "%s.gpg" --yes --encrypt' % (repr(s), DEFAULT_USER, filename))
+	# TODO check whether file has been changed
 	#~os.system('echo \'%s\' > "%s"' % (s, filename))
 
 def convert(oldfile):
