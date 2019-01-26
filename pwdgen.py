@@ -14,7 +14,7 @@ optional arguments:
 
 import random, string, argparse
 
-def generate(num=20, lower=True, upper=True, digit=True, punct=True):
+def generate(num=20, lower=True, upper=True, digit=True, punct=True, specl=None):
 	""" Generate a random password of given length with given character
 	groups.	Even if character group is selected, password is not guaranteed
 	to have one or more of each group.
@@ -22,7 +22,8 @@ def generate(num=20, lower=True, upper=True, digit=True, punct=True):
 	groups = [g for b, g in ((lower, string.ascii_lowercase),
 	                         (upper, string.ascii_uppercase),
 	                         (digit, string.digits),
-	                         (punct, string.punctuation)) if b]
+	                         (punct, string.punctuation),
+	                         (specl, specl)) if b]
 	return ''.join(random.choice(random.choice(groups)) for _ in range(num))
 
 def main():
@@ -34,9 +35,14 @@ def main():
 	parser.add_argument("-u, --upper", action='store_true', dest="upper", help="Allow uppercase characters?")
 	parser.add_argument("-d, --digit", action='store_true', dest="digit", help="Allow digit characters?")
 	parser.add_argument("-p, --punct", action='store_true', dest="punct", help="Allow punctuation characters?")
+	parser.add_argument("-s, --specl", type=str, default='', dest="specl", help="Specify other characters to allow?")
 	args = parser.parse_args()
 
-	print(generate(args.num, args.lower, args.upper, args.digit, args.punct))
+	if not any((args.lower, args.upper, args.digit, args.punct, args.specl)):
+		print("Please specify character groups; see --help for details.")
+		exit(1)
+
+	print(generate(args.num, args.lower, args.upper, args.digit, args.punct, args.specl))
 	
 if __name__ == "__main__":
 	main()
