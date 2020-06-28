@@ -4,11 +4,11 @@
 """User interface for simple Password Manager.
 by Tobias Küster, 2018
 
+Simple, first version of a UI for the password manager, horrible usability.
+
 - automatically decrypts on loading and encrypts on saving
 - shows passwords in a list and with details
 - provides edit fields for all attributes
-- provides basic search/filter feature
-- actions for copy to clipboard, open URL, and similar
 """
 
 import tkinter, tkinter.messagebox, tkinter.filedialog

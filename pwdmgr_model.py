@@ -11,23 +11,25 @@ password, tags, date of last change, etc.
 # from config import *
 import json
 
-ATTRIBUTES = "label", "username", "password", "notes", "tags", "last_changed"
+ATTRIBUTES = "label", "username", "password", "email", "url", "notes", "tags", "last_changed"
 
 class Password:
 	"""Class representing a single password.
 	"""
 
-	def __init__(self, label, username, password, notes, tags, last_changed):
+	def __init__(self, label, username, password, notes, tags, last_changed, url="", email=""):
 		self.label = label
 		self.username = username
 		self.password = password
+		self.email = email
+		self.url = url
 		self.notes = notes
 		self.tags = tags
 		self.last_changed = last_changed
 
 	def __repr__(self):
-		return "Password(%r, %r, %r, %r, %r, %r)" % (self.label, self.username,
-				self.password, self.notes, self.tags, self.last_changed)
+		return "Password(%r, %r, %r, %r, %r, %r, %r, %r)" % (self.label, self.username,
+				self.password, self.email, self.url, self.notes, self.tags, self.last_changed)
 
 class Configuration:
 	"""Configuration for the password manager. Currently, this only wraps a list
@@ -61,8 +63,8 @@ def create_test_config():
 	"""Create dummy config for testing.
 	"""
 	return Configuration([Password("label1", "name1", "pwd1", "url1", "tag1, tag2", "changed1"),
-	                      Password("label2", "name2", "pwd2", "url2", "tag2, tag3", "changed2"),
-			              Password("label3", "name3", "pwd3", "url3", "tag3, tag4", "changed3")])
+						  Password("label2", "name2", "pwd2", "url2", "tag2, tag3", "changed2"),
+						  Password("label3", "name3", "pwd3", "url3", "tag3, tag4", "changed3")])
 
 def test():
 	"""Just for testing basic creation and JSON serialization.

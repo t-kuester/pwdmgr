@@ -4,15 +4,15 @@
 """User interface for simple Password Manager.
 by Tobias Küster, 2018
 
+Second try of password manager UI using a table view, but Tkinter does not seem
+to have a proper widget for that, so emulating it with hundreds of text fields.
+Usability better, but still not great due to limitations by Tkinter (or me not
+using it properly).
+
 - automatically decrypts on loading and encrypts on saving
 - shows passwords in a list and with details
 - provides edit fields for all attributes
 - provides basic search/filter feature
-
-TODO
-- show warning when trying to close without saving changes
-- test whether saving changes worked, e.g. by checking file change date
-- actions for copy to clipboard, open URL, and similar
 """
 
 import tkinter, tkinter.messagebox, tkinter.filedialog
@@ -46,9 +46,12 @@ class PwdMgrFrame(tkinter.Frame):
 		self.table.bind("<Configure>", lambda event: canvas.configure(scrollregion=canvas.bbox("all")))
 
 		vbar = tkinter.Scrollbar(self, orient="vertical", command=canvas.yview)
-		canvas.configure(yscrollcommand=vbar.set)
+		hbar = tkinter.Scrollbar(self, orient="horizontal", command=canvas.xview)
+		canvas.configure(yscrollcommand=vbar.set, xscrollcommand=hbar.set)
 
 		vbar.grid(row=1, column=6, sticky="ns")
+		hbar.grid(row=2, column=0, columnspan=5, sticky="ew")
+		
 		canvas.grid(row=1, column=0, columnspan=5, sticky="nswe")
 		canvas.create_window((4,4), window=self.table, anchor="nw")
 
@@ -66,7 +69,7 @@ class PwdMgrFrame(tkinter.Frame):
 		print("filtering...")
 		s = self.fltr.get().lower()
 		filtered = [p for p in self.conf.passwords
-		            if any(s in getattr(p, a).lower() for a in pwdmgr_model.ATTRIBUTES)]
+					if any(s in getattr(p, a).lower() for a in pwdmgr_model.ATTRIBUTES)]
 		self.table.show_passwords(filtered)
 		return filtered
 		
@@ -102,7 +105,7 @@ class PwdTable(tkinter.Frame):
 		if passwords:
 			for col, attr in enumerate(pwdmgr_model.ATTRIBUTES):
 				b = tkinter.Button(self, text=attr, relief="flat",
-				                   command=self.sort_passwords(passwords, attr))
+								   command=self.sort_passwords(passwords, attr))
 				b.grid(row=0, column=col, sticky="ew")
 		# add rows with filtered passwords
 		for row, pwd in enumerate(passwords, start=1):
