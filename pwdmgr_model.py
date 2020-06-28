@@ -17,7 +17,7 @@ class Password:
 	"""Class representing a single password.
 	"""
 
-	def __init__(self, label, username, password, notes, tags, last_changed, url="", email=""):
+	def __init__(self, label, username, password, email, url, notes, tags, last_changed):
 		self.label = label
 		self.username = username
 		self.password = password
@@ -71,9 +71,9 @@ def write_to_json(configuration):
 def create_test_config():
 	"""Create dummy config for testing.
 	"""
-	return Configuration([Password("label1", "name1", "pwd1", "url1", "tag1, tag2", "changed1"),
-						  Password("label2", "name2", "pwd2", "url2", "tag2, tag3", "changed2"),
-						  Password("label3", "name3", "pwd3", "url3", "tag3, tag4", "changed3")])
+	return Configuration([Password("label1", "name1", "pwd1", "mail1", "url1", "notes1", "tag1, tag2", "changed1"),
+						  Password("label2", "name2", "pwd2", "mail2", "url2", "notes2", "tag2, tag3", "changed2"),
+						  Password("label3", "name3", "pwd3", "mail3", "url3", "notes3", "tag3, tag4", "changed3")])
 
 def test():
 	"""Just for testing basic creation and JSON serialization.
