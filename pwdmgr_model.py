@@ -27,6 +27,15 @@ class Password:
 		self.tags = tags
 		self.last_changed = last_changed
 
+	def __len__(self):
+		return len(ATTRIBUTES)
+		
+	def __setitem__(self, idx, val):
+		setattr(self, ATTRIBUTES[idx], val)
+		
+	def __getitem__(self, idx):
+		return getattr(self, ATTRIBUTES[idx])
+
 	def __repr__(self):
 		return "Password(%r, %r, %r, %r, %r, %r, %r, %r)" % (self.label, self.username,
 				self.password, self.email, self.url, self.notes, self.tags, self.last_changed)

@@ -34,6 +34,7 @@ def save_encrypt(filename, config):
 	with open(filename, "w") as f:
 		s = pwdmgr_model.write_to_json(config)
 		crypt = gpg.encrypt(s, DEFAULT_USER)
+		# TODO create backup of original file
 		if crypt.ok:
 			f.write(str(crypt))
 		else:
