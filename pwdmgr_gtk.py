@@ -20,10 +20,10 @@ Should hopefully provide a better UX than Tkinter.
 - helper function "get color"
 - un-delete if already marked for deletion
 - create new list of passwords from list model on save
-TODO
-- create backup of original file
-- toggle "show passwords"
 - toggle "show only modified"
+- create backup of original file
+TODO
+- toggle "show passwords"
 - documentation
 
 TEST DONE
@@ -61,10 +61,15 @@ class PwdMgrFrame:
 		
 		self.search = Gtk.SearchEntry()
 		self.search.connect("search-changed", self.do_filter)
+
+		self.mod_only = Gtk.CheckButton(label="Modified Only")
+		self.mod_only.set_active(False)
+		self.mod_only.connect("toggled", self.do_filter)
 		
 		header = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
 		header.pack_start(Gtk.Label(label="Filter"), False, False, 10)
 		header.pack_start(self.search, False, False, 0)
+		header.pack_start(self.mod_only, False, False, 10)
 		header.pack_end(create_button("list-remove", self.do_remove), False, False, 0)
 		header.pack_end(create_button("list-add", self.do_add), False, False, 0)
 		
@@ -80,7 +85,7 @@ class PwdMgrFrame:
 		self.window.show_all()
 		
 	def do_filter(self, widget):
-		print("filtering...", widget.get_text())
+		print("filtering...")
 		self.store_filter.refilter()
 
 	def do_close(self, *args):
@@ -112,7 +117,9 @@ class PwdMgrFrame:
 			self.set_color(vals)
 	
 	def filter_func(self, model, it, data):
-		vals = self.store[it]
+		vals = model[it]
+		if self.mod_only.get_active() and vals[IDX_COL] == COLOR_NON:
+			return False
 		s = self.search.get_text().lower()
 		return any(s in att.lower() for att in vals[:N_ATT])
 		
