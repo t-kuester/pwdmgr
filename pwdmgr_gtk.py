@@ -12,27 +12,15 @@ Should hopefully provide a better UX than Tkinter.
 - provides edit fields for all attributes
 - provides basic search/filter feature
 
-- highlight changed entries
-- highlight deleted entries
-- show warning when trying to close without saving changes
-- additional field for "deleted"
-- get-values method for Passwords instead of magic methods
-- helper function "get color"
-- un-delete if already marked for deletion
-- create new list of passwords from list model on save
-- toggle "show only modified"
-- create backup of original file
+- highlight new/modified/deleted entries
+- auto-save and encrypt when closing with changes (asking first)
+- creating backup of original file
+
 TODO
+- scroll to newly created password
+- EXCEPTION when filtered and removing the text that adds it to the filter
 - toggle "show passwords"
 - documentation
-
-TEST DONE
-- basic password viewing non-saving without modification
-TODO
-- editing passwords
-- adding passwords
-- removeing passwords
-- saving while filtered
 """
 
 import gi
@@ -85,7 +73,7 @@ class PwdMgrFrame:
 		self.window.show_all()
 		
 	def do_filter(self, widget):
-		print("filtering...")
+		print("filtering...", self.search.get_text(), self.mod_only.get_active())
 		self.store_filter.refilter()
 
 	def do_close(self, *args):
@@ -190,12 +178,12 @@ def ask_dialog(parent, title, message=None):
 	
 
 if __name__ == "__main__":
-	# ~try:
-		# ~filename = config.DEFAULT_PASSWORDS_FILE
-		# ~conf = pwdmgr_core.load_decrypt(filename)
-	# ~except IOError:
-	filename="test.json"
-	conf = pwdmgr_model.create_test_config()
+	try:
+		filename = config.DEFAULT_PASSWORDS_FILE
+		conf = pwdmgr_core.load_decrypt(filename)
+	except IOError:
+		filename="test.json"
+		conf = pwdmgr_model.create_test_config()
 	
 	PwdMgrFrame(conf, filename)
 	Gtk.main()
