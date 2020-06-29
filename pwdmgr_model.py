@@ -27,14 +27,11 @@ class Password:
 		self.tags = tags
 		self.last_changed = last_changed
 
-	def __len__(self):
-		return len(ATTRIBUTES)
-		
-	def __setitem__(self, idx, val):
-		setattr(self, ATTRIBUTES[idx], val)
-		
-	def __getitem__(self, idx):
-		return getattr(self, ATTRIBUTES[idx])
+	def values(self):
+		return [getattr(self, att) for att in ATTRIBUTES]
+
+	def __eq__(self, other):
+		return isinstance(other, Password) and self.values() == other.values()
 
 	def __repr__(self):
 		return "Password(%r, %r, %r, %r, %r, %r, %r, %r)" % (self.label, self.username,

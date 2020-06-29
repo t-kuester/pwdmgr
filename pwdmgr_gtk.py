@@ -15,8 +15,24 @@ Should hopefully provide a better UX than Tkinter.
 - highlight changed entries
 - highlight deleted entries
 - show warning when trying to close without saving changes
+- additional field for "deleted"
+- get-values method for Passwords instead of magic methods
+- helper function "get color"
+- un-delete if already marked for deletion
+- create new list of passwords from list model on save
 TODO
 - create backup of original file
+- toggle "show passwords"
+- toggle "show only modified"
+- documentation
+
+TEST DONE
+- basic password viewing non-saving without modification
+TODO
+- editing passwords
+- adding passwords
+- removeing passwords
+- saving while filtered
 """
 
 import gi
@@ -31,12 +47,17 @@ COLOR_NEW = "#aaffaa"
 COLOR_DEL = "#ffaaaa"
 COLOR_MOD = "#aaaaff"
 
+# indices for derived ID, color, and deleted status
+N_ATT = len(pwdmgr_model.ATTRIBUTES)
+IDX_ID, IDX_COL, IDX_DEL = N_ATT, N_ATT+1, N_ATT+2
+
 class PwdMgrFrame:
 	
 	def __init__(self, conf, filename):
 		self.conf = conf
 		self.filename = filename
-		self.dirty = False
+		
+		self.create_model()
 		
 		self.search = Gtk.SearchEntry()
 		self.search.connect("search-changed", self.do_filter)
@@ -44,8 +65,8 @@ class PwdMgrFrame:
 		header = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
 		header.pack_start(Gtk.Label(label="Filter"), False, False, 10)
 		header.pack_start(self.search, False, False, 0)
-		header.pack_end(self.create_button("list-remove", self.do_remove), False, False, 0)
-		header.pack_end(self.create_button("list-add", self.do_add), False, False, 0)
+		header.pack_end(create_button("list-remove", self.do_remove), False, False, 0)
+		header.pack_end(create_button("list-add", self.do_add), False, False, 0)
 		
 		body = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 		body.pack_start(header, False, False, 0)
@@ -58,101 +79,108 @@ class PwdMgrFrame:
 		self.window.add(body)
 		self.window.show_all()
 		
-	def create_button(self, icon, command):
-		button = Gtk.Button.new_from_icon_name(icon, Gtk.IconSize.BUTTON)
-		button.connect("clicked", command)
-		button.set_property("relief", Gtk.ReliefStyle.NONE)
-		return button
-
 	def do_filter(self, widget):
 		print("filtering...", widget.get_text())
-		self.list_filter.refilter()
+		self.store_filter.refilter()
 
 	def do_close(self, *args):
-		if self.dirty:
-			if self.ask_dialog("Save Changes?", "Select 'No' to review changes"):
+		new_passwords = [pwdmgr_model.Password(*vals[:N_ATT])
+		                 for vals in self.store if not vals[IDX_DEL]]
+		if new_passwords != self.conf.passwords:
+			if ask_dialog(self.window, "Save Changes?", "Select 'No' to review changes"):
 				print("saving...")
+				self.conf.passwords = new_passwords
 				pwdmgr_core.save_encrypt(self.filename, self.conf)
 				return False
 			else:
-				return not self.ask_dialog("Exit Anyway?")
+				return not ask_dialog(self.window, "Exit Anyway?")
 		return False
 
 	def do_add(self, widget):
-		if self.ask_dialog("Add Password"):
+		if ask_dialog(self.window, "Add Password"):
 			print("adding password")
-			p = pwdmgr_model.Password(*pwdmgr_model.ATTRIBUTES)
-			self.conf.passwords.append(p)
-			vals = [getattr(p, att) for att in pwdmgr_model.ATTRIBUTES] + [COLOR_NEW]
+			vals = [*pwdmgr_model.ATTRIBUTES, -1, COLOR_NEW, False]
 			self.store.append(vals)
-			self.dirty = True
 	
 	def do_remove(self, widget):
-		model, treeiter = self.select.get_selected()
-		if treeiter is not None and \
-				self.ask_dialog("Delete Selected?", "Mark selected passwort for deletion?"):
-			print("removing passwords")
-			self.list_filter[treeiter][8] = COLOR_DEL
-			self.dirty = True
+		model, it = self.select.get_selected()
+		if it is not None and ask_dialog(self.window, "Delete Selected?", 
+				"Mark/unmark selected passwort for deletion?"):
+			print("setting delete mark")
+			vals = model[it]
+			vals[IDX_DEL] ^= True
+			self.set_color(vals)
 	
-	def ask_dialog(self, title, message=None):
-		dialog = Gtk.MessageDialog(parent=self.window, flags=0, 
-			message_type=Gtk.MessageType.QUESTION, 
-			buttons=Gtk.ButtonsType.YES_NO, text=title)
-		dialog.format_secondary_text(message)
-		res = dialog.run() == Gtk.ResponseType.YES
-		dialog.destroy()
-		return res
-		
-	def filter_func(self, model, iter, data):
+	def filter_func(self, model, it, data):
+		vals = self.store[it]
 		s = self.search.get_text().lower()
-		return any(s in att.lower() for att in model[iter])
+		return any(s in att.lower() for att in vals[:N_ATT])
 		
 	def create_edit_func(self, column):
 		def edited(widget, path, text):
-			values = self.list_filter[path]
-			pwd = self.match_entry(values)
-			if self.list_filter[path][column] != text:
-				self.list_filter[path][column] = text
-				pwd[column] = text
-				if self.list_filter[path][8] == COLOR_NON:
-					self.list_filter[path][8] = COLOR_MOD
-				self.dirty = True
+			values = self.store_filter[path]
+			values[column] = text
+			self.set_color(values)
 		return edited
-	
-	def create_table(self):
+		
+	def create_model(self):
 		# create list model and populate with passwords
-		self.store = Gtk.ListStore(*[str]*9)
-		for entry in self.conf.passwords:
-			vals = [getattr(entry, att) for att in pwdmgr_model.ATTRIBUTES] + [COLOR_NON]
+		# data format: Password attributes, then derived ID, Color, and Deleted?
+		self.store = Gtk.ListStore(*[str]*8 + [int, str, bool])
+		for i, entry in enumerate(self.conf.passwords):
+			vals = [*entry.values(), i, COLOR_NON, False]
 			self.store.append(vals)
 		
 		# create filter on list model
-		self.list_filter = self.store.filter_new()
-		self.list_filter.set_visible_func(self.filter_func)
-		
+		self.store_filter = self.store.filter_new()
+		self.store_filter.set_visible_func(self.filter_func)
+	
+	def create_table(self):
 		# create Tree View with appropriate columns, editable and sortable
-		table = Gtk.TreeView.new_with_model(self.list_filter)
+		table = Gtk.TreeView.new_with_model(self.store_filter)
 		self.select = table.get_selection()
+		
+		renderer = Gtk.CellRendererText()
+		table.append_column(Gtk.TreeViewColumn("id", renderer, text=IDX_ID, background=IDX_COL))
 		
 		for i, att in enumerate(pwdmgr_model.ATTRIBUTES):
 			renderer = Gtk.CellRendererText()
-
-			
 			renderer.set_property("editable", True)
 			renderer.connect("edited", self.create_edit_func(i))
-			
-			column = Gtk.TreeViewColumn(att, renderer, text=i, background=8)
-			# ~column.set_sort_column_id(i)
-			table.append_column(column)
+			table.append_column(Gtk.TreeViewColumn(att, renderer, text=i, background=IDX_COL))
 		
 		scroller = Gtk.ScrolledWindow()
 		scroller.add(table)
 		return scroller
 	
-	def match_entry(self, values):
-		return next(p for p in self.conf.passwords if all(a==b for a, b in zip(p, values)))
+	def set_color(self, values):
+		idx = values[IDX_ID]
+		if values[IDX_DEL]:
+			color = COLOR_DEL
+		elif idx == -1:
+			color = COLOR_NEW
+		elif values[:N_ATT] != self.conf.passwords[idx].values():
+			color = COLOR_MOD
+		else:
+			color = COLOR_NON
+		values[IDX_COL] = color
 		
+		
+def create_button(icon, command):
+	button = Gtk.Button.new_from_icon_name(icon, Gtk.IconSize.BUTTON)
+	button.connect("clicked", command)
+	button.set_property("relief", Gtk.ReliefStyle.NONE)
+	return button
+
+def ask_dialog(parent, title, message=None):
+	dialog = Gtk.MessageDialog(parent=parent, flags=0, 
+		message_type=Gtk.MessageType.QUESTION, 
+		buttons=Gtk.ButtonsType.YES_NO, text=title)
+	dialog.format_secondary_text(message)
+	res = dialog.run() == Gtk.ResponseType.YES
+	dialog.destroy()
+	return res
+	
 
 if __name__ == "__main__":
 	# ~try:
