@@ -10,7 +10,7 @@ decrypting the password files.
 
 from config import *
 import pwdmgr_model
-import os
+import os, shutil
 import gnupg
 
 
@@ -31,10 +31,12 @@ def save_encrypt(filename, config):
 	"""
 	print("ecrypting...")
 	gpg = gnupg.GPG(gnupghome=USER_DIR + "/.gnupg")
+	
+	if os.path.isfile(filename):
+		shutil.copy(filename, filename + ".bak")
 	with open(filename, "w") as f:
 		s = pwdmgr_model.write_to_json(config)
 		crypt = gpg.encrypt(s, DEFAULT_USER)
-		# TODO create backup of original file
 		if crypt.ok:
 			f.write(str(crypt))
 		else:
