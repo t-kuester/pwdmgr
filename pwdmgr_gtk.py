@@ -182,6 +182,7 @@ if __name__ == "__main__":
 		filename = config.DEFAULT_PASSWORDS_FILE
 		conf = pwdmgr_core.load_decrypt(filename)
 	except IOError:
+		print(f"Password file {filename} not found")
 		filename="test.json"
 		conf = pwdmgr_model.create_test_config()
 	
