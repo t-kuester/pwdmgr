@@ -11,8 +11,10 @@ Should hopefully provide a better UX than Tkinter.
 - shows passwords and their attributes in a table
 - provides basic search/filter feature
 - highlight new/modified/deleted entries
+- filter columns to be shown
 
 TODO
+- add padding to botton for dumb GTK overlay-scrollbar?
 - scroll to newly created password (seems to be not so easy...)
 - try to enable sorting on top of filtering again
 - Exception when filtered and removing the text that adds it to the filter
@@ -60,15 +62,20 @@ class PwdMgrFrame:
 		header.pack_start(Gtk.Label(label="Filter"), False, False, 10)
 		header.pack_start(self.search, False, False, 0)
 		header.pack_start(self.mod_only, False, False, 10)
+		header.pack_start(create_button("Select Columns", self.do_filter_columns, False), False, False, 0)
 		header.pack_end(create_button("list-remove", self.do_remove), False, False, 0)
 		header.pack_end(create_button("list-add", self.do_add), False, False, 0)
 		
 		# create table model and body section with table view
 		self.create_model()
-		table = self.create_table()
+		self.table = self.create_table()
+		self.column_menu = self.create_column_menu()
+		table_scroller = Gtk.ScrolledWindow()
+		table_scroller.add(self.table)
+		
 		body = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 		body.pack_start(header, False, False, 0)
-		body.pack_start(table, True, True, 0)
+		body.pack_start(table_scroller, True, True, 0)
 
 		# put it all together in a window
 		self.window = Gtk.ApplicationWindow(title="Password Manager")
@@ -78,6 +85,12 @@ class PwdMgrFrame:
 		self.window.add(body)
 		self.window.show_all()
 		
+	def do_filter_columns(self, widget):
+		""" Callback for showing the column-filter-menu; not the actual buttons
+		"""
+		self.column_menu.set_relative_to(widget)
+		self.column_menu.show_all()
+	
 	def do_filter(self, widget):
 		""" Callback for filtering; basically just delegate to the actual filter
 		"""
@@ -163,9 +176,30 @@ class PwdMgrFrame:
 			renderer.connect("edited", self.create_edit_func(i))
 			table.append_column(Gtk.TreeViewColumn(att, renderer, text=i, background=IDX_COL))
 		
-		scroller = Gtk.ScrolledWindow()
-		scroller.add(table)
-		return scroller
+		return table
+	
+	def create_column_menu(self):
+		""" Create Popover menu with checkbox buttons for toggling the different
+		table columns on and off (and indirectly for reordering them)
+		"""
+		vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+		for column in self.table.get_columns():
+			if column.get_title() == "id": continue
+			
+			button = Gtk.CheckButton.new_with_label(column.get_title())
+			button.set_active(True)
+			def toggled(button=button, column=column):
+				if button.get_active():
+					self.table.append_column(column)
+				else:
+					self.table.remove_column(column)
+			button.connect("toggled", toggled)
+			vbox.pack_start(button, False, True, 10)
+		
+		menu = Gtk.Popover()
+		menu.add(vbox)
+		menu.set_position(Gtk.PositionType.BOTTOM)
+		return menu
 	
 	def set_color(self, values):
 		""" Set row color depending on whether the Password is marked for
@@ -177,10 +211,11 @@ class PwdMgrFrame:
 		              else COLOR_NON)
 		
 		
-def create_button(icon, command):
+def create_button(title, command, is_icon=True):
 	""" Helper function for creating a GTK button with icon and callback
 	"""
-	button = Gtk.Button.new_from_icon_name(icon, Gtk.IconSize.BUTTON)
+	button = Gtk.Button.new_from_icon_name(title, Gtk.IconSize.BUTTON) \
+	         if is_icon else Gtk.Button.new_with_label(title)
 	button.connect("clicked", command)
 	button.set_property("relief", Gtk.ReliefStyle.NONE)
 	return button
