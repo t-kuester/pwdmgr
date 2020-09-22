@@ -14,6 +14,8 @@ Should hopefully provide a better UX than Tkinter.
 - filter columns to be shown
 
 TODO
+- similar filter list with all tags
+- EXCEPTION when editing a field that adds the row to the current filter
 - add padding to botton for dumb GTK overlay-scrollbar?
 - scroll to newly created password (seems to be not so easy...)
 - try to enable sorting on top of filtering again
