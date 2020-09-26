@@ -12,9 +12,9 @@ Should hopefully provide a better UX than Tkinter.
 - provides basic search/filter feature
 - highlight new/modified/deleted entries
 - filter columns to be shown
+- load config from file in home dir, create file with dialog on first run
 
 TODO
-- load config from file in home dir, create file with dialog on first run
 - similar filter list with all tags
 - EXCEPTION when editing a field that adds the row to the current filter
 - add padding to botton for dumb GTK overlay-scrollbar?
