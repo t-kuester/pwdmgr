@@ -14,6 +14,7 @@ Should hopefully provide a better UX than Tkinter.
 - filter columns to be shown
 
 TODO
+- load config from file in home dir, create file with dialog on first run
 - similar filter list with all tags
 - EXCEPTION when editing a field that adds the row to the current filter
 - add padding to botton for dumb GTK overlay-scrollbar?
@@ -46,11 +47,11 @@ class PwdMgrFrame:
 	a subclass of Window), including callback methods for different actions.
 	"""
 	
-	def __init__(self, conf, filename):
-		""" Create Password Manager window for given config, filename for saving
+	def __init__(self, conf):
+		""" Create Password Manager window for given config
 		"""
 		self.conf = conf
-		self.filename = filename
+		self.original_passwords = pwdmgr_core.load_decrypt(self.conf)
 		
 		# create search and filtering windgets
 		self.search = Gtk.SearchEntry()
@@ -105,11 +106,10 @@ class PwdMgrFrame:
 		"""
 		new_passwords = [pwdmgr_model.Password(*vals[:N_ATT])
 		                 for vals in self.store if not vals[IDX_DEL]]
-		if new_passwords != self.conf.passwords:
+		if new_passwords != self.original_passwords:
 			if ask_dialog(self.window, "Save Changes?", "Select 'No' to review changes"):
 				print("saving...")
-				self.conf.passwords = new_passwords
-				pwdmgr_core.save_encrypt(self.filename, self.conf)
+				pwdmgr_core.save_encrypt(self.conf, new_passwords)
 				return False
 			else:
 				return not ask_dialog(self.window, "Exit Anyway?")
@@ -158,7 +158,7 @@ class PwdMgrFrame:
 		data format: [main Password attributes, index / ID, Color, Deleted?]
 		"""
 		self.store = Gtk.ListStore(*[str]*8 + [int, str, bool])
-		for i, entry in enumerate(self.conf.passwords):
+		for i, entry in enumerate(self.original_passwords):
 			vals = [*entry.values(), i, COLOR_NON, False]
 			self.store.append(vals)
 		self.store_filter = self.store.filter_new()
@@ -209,7 +209,7 @@ class PwdMgrFrame:
 		"""
 		values[IDX_COL] = (COLOR_DEL if values[IDX_DEL]
 		              else COLOR_NEW if values[IDX_ID] == -1
-		              else COLOR_MOD if values[:N_ATT] != self.conf.passwords[values[IDX_ID]].values()
+		              else COLOR_MOD if values[:N_ATT] != self.original_passwords[values[IDX_ID]].values()
 		              else COLOR_NON)
 		
 		
@@ -235,12 +235,7 @@ def ask_dialog(parent, title, message=None):
 	
 
 if __name__ == "__main__":
-	try:
-		filename = config.DEFAULT_PASSWORDS_FILE
-		conf = pwdmgr_core.load_decrypt(filename)
-	except IOError:
-		filename="test.json"
-		conf = pwdmgr_model.create_test_config()
-	
-	PwdMgrFrame(conf, filename)
+	conf = config.load_config()
+	# ~conf = pwdmgr_model.create_test_config()
+	PwdMgrFrame(conf)
 	Gtk.main()

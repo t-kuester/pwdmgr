@@ -9,65 +9,50 @@ decrypting the password files.
 """
 
 from config import *
-import pwdmgr_model
+from pwdmgr_model import load_from_json, write_to_json, Configuration, Password
+from typing import List
 import os, shutil
 import gnupg
 
 
-def load_decrypt(filename, passphrase=None):
+def load_decrypt(config: Configuration) -> List[Password]:
 	"""Load and decrypt passwords from given file.
 	"""
 	print("decrypting...")
 	gpg = gnupg.GPG(gnupghome=USER_DIR + "/.gnupg")
-	with open(filename, "rb") as f:
+	with open(config.filename, "rb") as f:
 		crypt = gpg.decrypt_file(f)
 		if crypt.ok:
-			return pwdmgr_model.load_from_json(str(crypt))
+			return load_from_json(str(crypt))
 		else:
 			raise Exception(crypt.status)
 	
-def save_encrypt(filename, config):
+def save_encrypt(config: Configuration, passwords: List[Password]):
 	"""Encrypt and save passwords to given file.
 	"""
 	print("ecrypting...")
 	gpg = gnupg.GPG(gnupghome=USER_DIR + "/.gnupg")
 	
-	if os.path.isfile(filename):
-		shutil.copy(filename, filename + ".bak")
-	with open(filename, "w") as f:
-		s = pwdmgr_model.write_to_json(config)
-		crypt = gpg.encrypt(s, DEFAULT_USER)
+	if os.path.isfile(config.filename):
+		shutil.copy(config.filename, config.filename + ".bak")
+	with open(config.filename, "w") as f:
+		s = write_to_json(passwords)
+		crypt = gpg.encrypt(s, config.usermail)
 		if crypt.ok:
 			f.write(str(crypt))
 		else:
 			raise Exception(crypt.status)
 
-def convert(oldfile):
-	"""Read password file in my own old tabular format and convert to new form.
-	"""
-	import re
-	pwds = []
-	with open(oldfile) as f:
-		for line in f:
-			m = re.match("== (.+) ==", line)
-			if m:
-				tags = m.group(1).lower()
-			elif line.strip():
-				label, name, pwd, misc = map(str.strip, (line[:20], line[20:50], line[50:80], line[80:]))
-				print(tags, label, name, pwd, misc)
-				pwds.append(pwdmgr_model.Password(label, name, pwd, misc, tags, None))
-
-	save_encrypt(DEFAULT_PASSWORDS_FILE, pwdmgr_model.Configuration(pwds))
-
 def test():
 	"""Just for testing loading, saving, encrytion and decryption.
 	"""
-	filename = "not-my-actual-pwds.json"
-	conf = pwdmgr_model.create_test_config()
-	save_encrypt(filename, conf)
-	conf2 = load_decrypt(filename)
-	print(conf2)
-	print(repr(conf) == repr(conf2))
+	from pwdmgr_model import create_test_config, create_test_passwords
+	conf = create_test_config()
+	pwds = create_test_passwords()
+	save_encrypt(conf, pwds)
+	pwds2 = load_decrypt(conf)
+	print(pwds2)
+	assert pwds == pwds2
 
 # testing stuff	
 if __name__ == "__main__":
