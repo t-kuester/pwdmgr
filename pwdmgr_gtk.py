@@ -149,12 +149,19 @@ class PwdMgrFrame:
 	def create_edit_func(self, column):
 		""" Helper function for creating edit-callbacks for each column
 		"""
-		def edited(widget, path, text):
+		def edit_func(widget, path, text):
 			values = self.store_filter[path]
-			values[column] = text
-			# XXX exception here if edit removed the element from filter
-			self.set_color(values)
-		return edited
+			# ~values[column] = text
+			# ~self.set_color(values)
+			# XXX above causes Exception when filtered down with 2 or more elements
+			# and then editing such that the element is no longer in the filter
+			# below workaround kind of works, but not for "Modified Only" filter
+			vals = [text if i == column else x for i, x in enumerate(values)]
+			self.set_color(vals)
+			for i in (IDX_FG, IDX_BG, column):
+				values[i] = vals[i]
+			
+		return edit_func
 		
 	def create_model(self):
 		""" Create list model and filter model and populate with Passwords
