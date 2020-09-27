@@ -26,7 +26,7 @@ def load_config() -> Configuration:
 		config = create_config()
 		print(config)
 		with open(CONFIG_PATH, "w") as f:
-			json.dump(dict(config.__dict__), f)
+			json.dump(dict(config.__dict__), f, indent=4)
 		return config
 	
 def create_config() -> Configuration:

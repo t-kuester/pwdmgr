@@ -67,8 +67,8 @@ but can otherwise be used entirely through the graphical UI.
 * Select Columns: select which of the attributes to show/hide; while actually
   not intended, this can also be used to temporarily re-order the columns by
   hiding them and then re-showing them in the desired order
-* (Plus): add a new password entry
-* (Minus): mark the selected password entry for deletion
+* (Plus): add a new password entry at the bottom of the list
+* (Minus): mark the selected password entry for deletion (press again to un-mark)
 * (Close): if there have been any changes in the current session, ask the user
   whether to save or discard the changes, then close
 

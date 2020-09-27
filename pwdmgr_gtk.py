@@ -12,11 +12,9 @@ Should hopefully provide a better UX than Tkinter.
 - provides basic search/filter feature
 - highlight new/modified/deleted entries
 - filter columns to be shown
-- load config from file in home dir, create file with dialog on first run
 
 TODO (small ones; bigger ones are in Github Issues)
 - EXCEPTION when editing a field that adds the row to the current filter
-- add padding to botton for dumb GTK overlay-scrollbar?
 - scroll to newly created password (seems to be not so easy...)
 - try to enable sorting on top of filtering again
 """
@@ -123,7 +121,8 @@ class PwdMgrFrame:
 		"""
 		if ask_dialog(self.window, "Add Password"):
 			print("adding password")
-			vals = [*pwdmgr_model.ATTRIBUTES, -1, COLOR_FGB, COLOR_NEW, False]
+			vals = [*pwdmgr_model.ATTRIBUTES, -1, None, None, False]
+			self.set_color(vals)
 			self.store.append(vals)
 	
 	def do_remove(self, widget):
@@ -153,6 +152,7 @@ class PwdMgrFrame:
 		def edited(widget, path, text):
 			values = self.store_filter[path]
 			values[column] = text
+			# XXX exception here if edit removed the element from filter
 			self.set_color(values)
 		return edited
 		
@@ -162,7 +162,8 @@ class PwdMgrFrame:
 		"""
 		self.store = Gtk.ListStore(*[str]*8 + [int, str, str, bool])
 		for i, entry in enumerate(self.original_passwords):
-			vals = [*entry.values(), i, COLOR_FGN, COLOR_NON, False]
+			vals = [*entry.values(), i, None, None, False]
+			self.set_color(vals)
 			self.store.append(vals)
 		self.store_filter = self.store.filter_new()
 		self.store_filter.set_visible_func(self.filter_func)
