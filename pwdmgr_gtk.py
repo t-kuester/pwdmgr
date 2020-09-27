@@ -29,14 +29,17 @@ import pwdmgr_core, pwdmgr_model, config
 import os
 
 # colors indicating the status of the Passwords
-COLOR_NON = "#ffffff"
-COLOR_NEW = "#aaffaa"
-COLOR_DEL = "#ffaaaa"
-COLOR_MOD = "#aaaaff"
+# pastel colors working equally well on light and dark theme
+COLOR_NON = None      # neutral background, depends on theme
+COLOR_NEW = "#aaffaa" # pastel green for new entries
+COLOR_DEL = "#ffaaaa" # pastel red for deleted entries
+COLOR_MOD = "#aaaaff" # pastel blue for modified entries
+COLOR_FGN = None      # neutral foreground, depends on theme
+COLOR_FGB = "#000000" # black, for pastel background
 
-# indices for derived ID, color, and deleted status
+# indices for derived ID, fg- and bg-color, and deleted status
 N_ATT = len(pwdmgr_model.ATTRIBUTES)
-IDX_ID, IDX_COL, IDX_DEL = N_ATT, N_ATT+1, N_ATT+2
+IDX_ID, IDX_FG, IDX_BG, IDX_DEL = N_ATT, N_ATT+1, N_ATT+2, N_ATT+3
 
 class PwdMgrFrame:
 	""" Wrapper-Class for the GTK window and all its elements (but not in itself
@@ -120,7 +123,7 @@ class PwdMgrFrame:
 		"""
 		if ask_dialog(self.window, "Add Password"):
 			print("adding password")
-			vals = [*pwdmgr_model.ATTRIBUTES, -1, COLOR_NEW, False]
+			vals = [*pwdmgr_model.ATTRIBUTES, -1, COLOR_FGB, COLOR_NEW, False]
 			self.store.append(vals)
 	
 	def do_remove(self, widget):
@@ -139,7 +142,7 @@ class PwdMgrFrame:
 		should be shown or hidden
 		"""
 		vals = model[it]
-		if self.mod_only.get_active() and vals[IDX_COL] == COLOR_NON:
+		if self.mod_only.get_active() and vals[IDX_BG] == COLOR_NON:
 			return False
 		s = self.search.get_text().lower()
 		return any(s in att.lower() for att in vals[:N_ATT])
@@ -157,9 +160,9 @@ class PwdMgrFrame:
 		""" Create list model and filter model and populate with Passwords
 		data format: [main Password attributes, index / ID, Color, Deleted?]
 		"""
-		self.store = Gtk.ListStore(*[str]*8 + [int, str, bool])
+		self.store = Gtk.ListStore(*[str]*8 + [int, str, str, bool])
 		for i, entry in enumerate(self.original_passwords):
-			vals = [*entry.values(), i, COLOR_NON, False]
+			vals = [*entry.values(), i, COLOR_FGN, COLOR_NON, False]
 			self.store.append(vals)
 		self.store_filter = self.store.filter_new()
 		self.store_filter.set_visible_func(self.filter_func)
@@ -171,12 +174,12 @@ class PwdMgrFrame:
 		table = Gtk.TreeView.new_with_model(self.store_filter)
 		self.select = table.get_selection()
 		
-		table.append_column(Gtk.TreeViewColumn("id", Gtk.CellRendererText(), text=IDX_ID, background=IDX_COL))
+		table.append_column(Gtk.TreeViewColumn("id", Gtk.CellRendererText(), text=IDX_ID, foreground=IDX_FG, background=IDX_BG))
 		for i, att in enumerate(pwdmgr_model.ATTRIBUTES):
 			renderer = Gtk.CellRendererText()
 			renderer.set_property("editable", True)
 			renderer.connect("edited", self.create_edit_func(i))
-			table.append_column(Gtk.TreeViewColumn(att, renderer, text=i, background=IDX_COL))
+			table.append_column(Gtk.TreeViewColumn(att, renderer, text=i, foreground=IDX_FG, background=IDX_BG))
 		
 		return table
 	
@@ -207,10 +210,11 @@ class PwdMgrFrame:
 		""" Set row color depending on whether the Password is marked for
 		deletion, newly created, modified, or none of all that.
 		"""
-		values[IDX_COL] = (COLOR_DEL if values[IDX_DEL]
+		values[IDX_BG] = (COLOR_DEL if values[IDX_DEL]
 		              else COLOR_NEW if values[IDX_ID] == -1
 		              else COLOR_MOD if values[:N_ATT] != self.original_passwords[values[IDX_ID]].values()
 		              else COLOR_NON)
+		values[IDX_FG] = COLOR_FGN if values[IDX_BG] == COLOR_NON else COLOR_FGB
 		
 		
 def create_button(title, command, is_icon=True):
