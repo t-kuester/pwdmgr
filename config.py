@@ -12,14 +12,13 @@ import json
 from pwdmgr_model import Configuration
 
 USER_DIR = os.environ["HOME"]
-CONFIG_PATH = os.path.join(USER_DIR, ".config", "pwdmgr")
+CONFIG_PATH = os.path.join(USER_DIR, ".config", "t-kuester", "pwdmgr")
 DATE_FORMAT = "%Y-%m-%d"
 
 def load_config() -> Configuration:
-	# check file in home dir, try to load config
-	# all okay -> return config
-	# file does not exist -> create config
-	# file exists, but unknown format -> error
+	"""Try to load configuration file or create new file. May fail if a file
+	with that name exists, but can not be read.
+	"""
 	try:
 		with open(CONFIG_PATH, "r") as f:
 			return Configuration(**json.load(f))
@@ -29,13 +28,10 @@ def load_config() -> Configuration:
 		with open(CONFIG_PATH, "w") as f:
 			json.dump(dict(config.__dict__), f)
 		return config
-	except:
-		print(f"Could not read config file at {CONFIG_PATH}")
-		exit(1)
 	
 def create_config() -> Configuration:
-	# ask user for e-mail address and password file
-	# for now, just use input(), later extend with simple UI
+	"""Ask user for new configuration detail, esp. e-mail and password path.
+	"""
 	print(f"Creating new Configuration at {CONFIG_PATH}...")
 	mail = input("Enter e-mail identity to be used for encryption: ")
 	path = input("Enter path to passwords file: ")

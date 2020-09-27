@@ -14,15 +14,11 @@ Should hopefully provide a better UX than Tkinter.
 - filter columns to be shown
 - load config from file in home dir, create file with dialog on first run
 
-TODO
-- similar filter list with all tags
+TODO (small ones; bigger ones are in Github Issues)
 - EXCEPTION when editing a field that adds the row to the current filter
 - add padding to botton for dumb GTK overlay-scrollbar?
 - scroll to newly created password (seems to be not so easy...)
 - try to enable sorting on top of filtering again
-- Exception when filtered and removing the text that adds it to the filter
-- toggle "show passwords"
-- add "folders" in addition to tags/labels?
 """
 
 import gi
@@ -51,7 +47,11 @@ class PwdMgrFrame:
 		""" Create Password Manager window for given config
 		"""
 		self.conf = conf
-		self.original_passwords = pwdmgr_core.load_decrypt(self.conf)
+		try:
+			self.original_passwords = pwdmgr_core.load_decrypt(self.conf)
+		except FileNotFoundError:
+			print("File not found... starting new list")
+			self.original_passwords = []
 		
 		# create search and filtering windgets
 		self.search = Gtk.SearchEntry()
@@ -81,7 +81,7 @@ class PwdMgrFrame:
 		body.pack_start(table_scroller, True, True, 0)
 
 		# put it all together in a window
-		self.window = Gtk.ApplicationWindow(title="Password Manager")
+		self.window = Gtk.ApplicationWindow(title=f"Password Manager - {conf.filename}")
 		self.window.resize(800, 600)
 		self.window.connect("delete-event", self.do_close)
 		self.window.connect("destroy", Gtk.main_quit)
@@ -237,5 +237,6 @@ def ask_dialog(parent, title, message=None):
 if __name__ == "__main__":
 	conf = config.load_config()
 	# ~conf = pwdmgr_model.create_test_config()
+	print(f"Using {conf}")
 	PwdMgrFrame(conf)
 	Gtk.main()
