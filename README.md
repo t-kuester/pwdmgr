@@ -72,7 +72,5 @@ but can otherwise be used entirely through the graphical UI.
 * (Close): if there have been any changes in the current session, ask the user
   whether to save or discard the changes, then close
 
-This repository also includes two older versions of the UI made with Tkinter,
-but the new UI using GTK is _much_ better. The old UIs will probably be removed.
 Also, this repository includes a simple password generator, but it is not yet
 included into the UI.
