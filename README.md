@@ -25,7 +25,7 @@ Configuration and File Formats
 When the program is first executed, it will ask for the user's e-mail address
 (used only for knowing for whom to encrypt the passwords) and the location of
 the actual password file. The program's configuration is then stored in a JSON
-file in `~/.config/pwdmgr`.
+file in `~/.config/t-kuester/pwdmgr`.
 
 The passwords are stored in a separate encrypted JSON file. When decrypted, the
 format of the file would be as follows. The file is _never_ stored in this format
@@ -72,6 +72,6 @@ but can otherwise be used entirely through the graphical UI.
 
 Password Generator
 ------------------
-This repository also includes a simple password generator, that can be used via
-the command line or with a simple UI, that can also be invoked from within the
+This repository also includes a password generator, that can be used via the
+command line or with a simple UI, that can also be invoked from within the
 password manager.
