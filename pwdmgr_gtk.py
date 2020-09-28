@@ -24,6 +24,7 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 import pwdmgr_core, pwdmgr_model, config
+import pwdgen_gtk
 import os
 
 # colors indicating the status of the Passwords
@@ -67,6 +68,7 @@ class PwdMgrFrame:
 		header.pack_start(self.search, False, False, 0)
 		header.pack_start(self.mod_only, False, False, 10)
 		header.pack_start(create_button("Select Columns", self.do_filter_columns, False), False, False, 0)
+		header.pack_start(create_button("Password Generator", self.do_genpwd, False), False, False, 0)
 		header.pack_end(create_button("list-remove", self.do_remove), False, False, 0)
 		header.pack_end(create_button("list-add", self.do_add), False, False, 0)
 		
@@ -129,13 +131,18 @@ class PwdMgrFrame:
 		""" Callback for removing the selected Password entry
 		"""
 		_, it = self.select.get_selected() # need unfiltered iter!
-		it = self.store_filter.convert_iter_to_child_iter(it)
 		if it is not None and ask_dialog(self.window, "Delete Selected?", 
 				"Mark/unmark selected passwort for deletion?"):
 			print("setting delete mark")
+			it = self.store_filter.convert_iter_to_child_iter(it)
 			vals = self.store[it]
 			vals[IDX_DEL] ^= True
 			self.set_color(vals)
+	
+	def do_genpwd(self, widget):
+		"""Show Password Generator
+		"""
+		pwdgen_gtk.PwdGenFrame(is_main=False)
 	
 	def filter_func(self, model, it, data):
 		""" Callback called for each row in the table to determine whether it
