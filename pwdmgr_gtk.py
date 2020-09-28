@@ -14,8 +14,8 @@ Should hopefully provide a better UX than Tkinter.
 - filter columns to be shown
 
 TODO (small ones; bigger ones are in Github Issues)
-- EXCEPTION when editing a field that adds the row to the current filter
 - scroll to newly created password (seems to be not so easy...)
+- add "undo change" button?
 - try to enable sorting on top of filtering again
 """
 
@@ -128,11 +128,12 @@ class PwdMgrFrame:
 	def do_remove(self, widget):
 		""" Callback for removing the selected Password entry
 		"""
-		model, it = self.select.get_selected()
+		_, it = self.select.get_selected() # need unfiltered iter!
+		it = self.store_filter.convert_iter_to_child_iter(it)
 		if it is not None and ask_dialog(self.window, "Delete Selected?", 
 				"Mark/unmark selected passwort for deletion?"):
 			print("setting delete mark")
-			vals = model[it]
+			vals = self.store[it]
 			vals[IDX_DEL] ^= True
 			self.set_color(vals)
 	
@@ -150,17 +151,12 @@ class PwdMgrFrame:
 		""" Helper function for creating edit-callbacks for each column
 		"""
 		def edit_func(widget, path, text):
-			values = self.store_filter[path]
-			# ~values[column] = text
-			# ~self.set_color(values)
-			# XXX above causes Exception when filtered down with 2 or more elements
-			# and then editing such that the element is no longer in the filter
-			# below workaround kind of works, but not for "Modified Only" filter
-			vals = [text if i == column else x for i, x in enumerate(values)]
-			self.set_color(vals)
-			for i in (IDX_FG, IDX_BG, column):
-				values[i] = vals[i]
-			
+			# get unfiltered path or Exception if edit removes row from filter
+			path = Gtk.TreePath.new_from_string(path)
+			path = self.store_filter.convert_path_to_child_path(path)
+			values = self.store[path]
+			values[column] = text
+			self.set_color(values)
 		return edit_func
 		
 	def create_model(self):
