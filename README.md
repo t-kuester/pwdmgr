@@ -22,7 +22,6 @@ What you need for this to work
 
 Configuration and File Formats
 ------------------------------
-
 When the program is first executed, it will ask for the user's e-mail address
 (used only for knowing for whom to encrypt the passwords) and the location of
 the actual password file. The program's configuration is then stored in a JSON
@@ -52,7 +51,6 @@ In fact, it should be easy to add or remove attributes in the source code.
 
 User Interface
 --------------
-
 On the first start, the program will ask for configuration details on the
 command line. After that, it will log some information to the command line,
 but can otherwise be used entirely through the graphical UI.
@@ -72,5 +70,8 @@ but can otherwise be used entirely through the graphical UI.
 * (Close): if there have been any changes in the current session, ask the user
   whether to save or discard the changes, then close
 
-Also, this repository includes a simple password generator, but it is not yet
-included into the UI.
+Password Generator
+------------------
+This repository also includes a simple password generator, that can be used via
+the command line or with a simple UI, that can also be invoked from within the
+password manager.
