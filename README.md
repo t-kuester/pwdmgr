@@ -19,6 +19,7 @@ What this does _not_
 What you need for this to work
 ------------------------------
 * set up GPG on your computer
+* run `python3 pwdmgr_gtk.py`
 
 Configuration and File Formats
 ------------------------------

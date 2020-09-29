@@ -67,10 +67,10 @@ class PwdMgrFrame:
 		header.pack_start(Gtk.Label(label="Filter"), False, False, 10)
 		header.pack_start(self.search, False, False, 0)
 		header.pack_start(self.mod_only, False, False, 10)
-		header.pack_start(create_button("Select Columns", self.do_filter_columns, False), False, False, 0)
-		header.pack_start(create_button("Password Generator", self.do_genpwd, False), False, False, 0)
-		header.pack_end(create_button("list-remove", self.do_remove), False, False, 0)
-		header.pack_end(create_button("list-add", self.do_add), False, False, 0)
+		header.pack_start(create_button("Select Columns", self.do_filter_columns, is_icon=False), False, False, 0)
+		header.pack_start(create_button("Password Generator", self.do_genpwd, is_icon=False), False, False, 0)
+		header.pack_end(create_button("list-remove", self.do_remove, "Mark selected for Removal"), False, False, 0)
+		header.pack_end(create_button("list-add", self.do_add, "Add new Entry"), False, False, 0)
 		
 		# create table model and body section with table view
 		self.create_model()
@@ -228,13 +228,14 @@ class PwdMgrFrame:
 		values[IDX_FG] = COLOR_FGN if values[IDX_BG] == COLOR_NON else COLOR_FGB
 		
 		
-def create_button(title, command, is_icon=True):
+def create_button(title, command, tooltip=None, is_icon=True):
 	""" Helper function for creating a GTK button with icon and callback
 	"""
 	button = Gtk.Button.new_from_icon_name(title, Gtk.IconSize.BUTTON) \
 	         if is_icon else Gtk.Button.new_with_label(title)
 	button.connect("clicked", command)
 	button.set_property("relief", Gtk.ReliefStyle.NONE)
+	button.set_tooltip_text(tooltip)
 	return button
 
 def ask_dialog(parent, title, message=None):
