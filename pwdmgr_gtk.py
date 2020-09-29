@@ -69,6 +69,7 @@ class PwdMgrFrame:
 		header.pack_start(self.mod_only, False, False, 10)
 		header.pack_start(create_button("Select Columns", self.do_filter_columns, is_icon=False), False, False, 0)
 		header.pack_start(create_button("Password Generator", self.do_genpwd, is_icon=False), False, False, 0)
+		header.pack_end(create_button("view-refresh", self.do_reset, "Reset selected"), False, False, 0)
 		header.pack_end(create_button("list-remove", self.do_remove, "Mark selected for Removal"), False, False, 0)
 		header.pack_end(create_button("list-add", self.do_add, "Add new Entry"), False, False, 0)
 		
@@ -138,6 +139,22 @@ class PwdMgrFrame:
 			vals = self.store[it]
 			vals[IDX_DEL] ^= True
 			self.set_color(vals)
+		
+	def do_reset(self, widget):
+		""" Reset selected entry to original values if modified
+		"""
+		_, it = self.select.get_selected() # need unfiltered iter!
+		if it is not None and ask_dialog(self.window, "Reset Selected?", 
+				"Reset selected passwort to original values?"):
+			print("resetting")
+			it = self.store_filter.convert_iter_to_child_iter(it)
+			vals = self.store[it]
+			if vals[IDX_BG] == COLOR_MOD:
+				p = self.original_passwords[vals[IDX_ID]]
+				vals[:N_ATT] = [getattr(p, a) for a in pwdmgr_model.ATTRIBUTES]
+				self.set_color(vals)
+			else:
+				print("Can only reset modified values; use (un) delete for new or deleted.")
 	
 	def do_genpwd(self, widget):
 		"""Show Password Generator
