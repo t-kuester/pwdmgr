@@ -24,7 +24,7 @@ def load_config() -> Configuration:
 			return Configuration(**json.load(f))
 	except FileNotFoundError:
 		config = create_config()
-		os.makedirs(CONFIG_PATH)
+		os.makedirs(CONFIG_PATH, exist_ok=True)
 		with open(CONFIG_FILE, "w") as f:
 			json.dump(dict(config.__dict__), f, indent=4)
 		return config
