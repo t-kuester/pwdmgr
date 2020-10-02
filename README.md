@@ -1,6 +1,8 @@
 Simple Password Manager
 =======================
 
+_2018-2020, Tobias Küster_
+
 Simple Password-Manager for storing passwords in an encrypted JSON file. Requires
 GPG to be installed and set up, which is called using the `gnupg` library. Passwords
 are decrypted, displayed in a simpe UI, and encrypted again when something changes.
@@ -19,6 +21,7 @@ What this does _not_
 What you need for this to work
 ------------------------------
 * set up GPG on your computer
+* run `python3 pwdmgr_gtk.py`
 
 Configuration and File Formats
 ------------------------------
