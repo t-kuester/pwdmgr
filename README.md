@@ -6,11 +6,13 @@ _2018-2020, Tobias Küster_
 Simple Password-Manager for storing passwords in an encrypted JSON file. Requires
 GPG to be installed and set up, which is called using the `gnupg` library. Passwords
 are decrypted, displayed in a simpe UI, and encrypted again when something changes.
-Passwords can be tagged and annotated, sorted and filtered.
+Passwords can be edited, tagged and annotated, and filtered.
 
 What this does
 --------------
 * automatically decrypt and encrypt passwords from a GPG file
+  (note: passwords _are_ temporarily stored in RAM, and thus, if the computer
+  starts swapping, they _might_ end up on the hard drive)
 * present passwords in a simple UI for searching, filtering, and editing
 
 What this does _not_
@@ -20,7 +22,7 @@ What this does _not_
 
 What you need for this to work
 ------------------------------
-* set up GPG on your computer
+* set up GPG on your computer and install the `gnupg` module for Python
 * run `python3 pwdmgr_gtk.py`
 
 Configuration and File Formats
@@ -50,7 +52,8 @@ and edit / repair / salvage it.
 
 All those attributes are just strings, even the `tags` and `last_changed` date.
 Some of those attributes may seem redundant; you do not have to use them all.
-In fact, it should be easy to add or remove attributes in the source code.
+If you prefer to use a different set of attributes, they are very easy to add
+or remove in the source code of the `pwdmgr_model.py` file.
 
 User Interface
 --------------
