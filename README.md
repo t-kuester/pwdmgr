@@ -11,13 +11,13 @@ Passwords can be edited, tagged and annotated, and filtered.
 What this does
 --------------
 * automatically decrypt and encrypt passwords from a GPG file
-  (note: passwords _are_ temporarily stored in RAM, and thus, if the computer
-  starts swapping, they _might_ end up on the hard drive)
 * present passwords in a simple UI for searching, filtering, and editing
 
 What this does _not_
 --------------------
 * store plain-text passwords on the hard drive at any time
+  (note: passwords _are_ temporarily stored in RAM, and thus, if the computer
+  starts swapping, they _might_ end up on the hard drive)
 * send any type of data over the internet
 
 What you need for this to work
