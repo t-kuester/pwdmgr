@@ -26,7 +26,8 @@ def load_decrypt(config: Configuration) -> List[Password]:
 			return load_from_json(str(crypt))
 		else:
 			raise Exception(crypt.status)
-	
+
+
 def save_encrypt(config: Configuration, passwords: List[Password]):
 	"""Encrypt and save passwords to given file.
 	"""
@@ -43,6 +44,7 @@ def save_encrypt(config: Configuration, passwords: List[Password]):
 		else:
 			raise Exception(crypt.status)
 
+
 def test():
 	"""Just for testing loading, saving, encrytion and decryption.
 	"""
@@ -53,6 +55,7 @@ def test():
 	pwds2 = load_decrypt(conf)
 	print(pwds2)
 	assert pwds == pwds2
+
 
 # testing stuff	
 if __name__ == "__main__":

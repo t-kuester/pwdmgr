@@ -25,20 +25,20 @@ from gi.repository import Gtk
 
 import pwdmgr_core, pwdmgr_model, config
 import pwdgen_gtk
-import os
 
 # colors indicating the status of the Passwords
 # pastel colors working equally well on light and dark theme
-COLOR_NON = None      # neutral background, depends on theme
-COLOR_NEW = "#aaffaa" # pastel green for new entries
-COLOR_DEL = "#ffaaaa" # pastel red for deleted entries
-COLOR_MOD = "#aaaaff" # pastel blue for modified entries
-COLOR_FGN = None      # neutral foreground, depends on theme
-COLOR_FGB = "#000000" # black, for pastel background
+COLOR_NON = None       # neutral background, depends on theme
+COLOR_NEW = "#aaffaa"  # pastel green for new entries
+COLOR_DEL = "#ffaaaa"  # pastel red for deleted entries
+COLOR_MOD = "#aaaaff"  # pastel blue for modified entries
+COLOR_FGN = None       # neutral foreground, depends on theme
+COLOR_FGB = "#000000"  # black, for pastel background
 
 # indices for derived ID, fg- and bg-color, and deleted status
 N_ATT = len(pwdmgr_model.ATTRIBUTES)
 IDX_ID, IDX_FG, IDX_BG, IDX_DEL = N_ATT, N_ATT+1, N_ATT+2, N_ATT+3
+
 
 class PwdMgrFrame:
 	""" Wrapper-Class for the GTK window and all its elements (but not in itself
@@ -55,7 +55,7 @@ class PwdMgrFrame:
 			print("File not found... starting new list")
 			self.original_passwords = []
 		
-		# create search and filtering windgets
+		# create search and filtering widgets
 		self.search = Gtk.SearchEntry()
 		self.search.connect("search-changed", self.do_filter)
 		self.mod_only = Gtk.CheckButton(label="Modified Only")
@@ -130,9 +130,9 @@ class PwdMgrFrame:
 	def do_remove(self, widget):
 		""" Callback for removing the selected Password entry
 		"""
-		_, it = self.select.get_selected() # need unfiltered iter!
+		_, it = self.select.get_selected()  # need unfiltered iter!
 		if it is not None and ask_dialog(self.window, "Delete Selected?", 
-				"Mark/unmark selected passwort for deletion?"):
+				"Mark/unmark selected password for deletion?"):
 			print("setting delete mark")
 			it = self.store_filter.convert_iter_to_child_iter(it)
 			vals = self.store[it]
@@ -238,6 +238,7 @@ def create_button(title, command, tooltip=None, is_icon=True):
 	button.set_tooltip_text(tooltip)
 	return button
 
+
 def ask_dialog(parent, title, message=None):
 	""" Helper method for opening a simple yes/no dialog and getting the answer
 	"""
@@ -250,9 +251,13 @@ def ask_dialog(parent, title, message=None):
 	return res
 	
 
-if __name__ == "__main__":
+def main():
 	conf = config.load_config()
 	# ~conf = pwdmgr_model.create_test_config()
 	print(f"Using {conf}")
 	PwdMgrFrame(conf)
 	Gtk.main()
+
+
+if __name__ == "__main__":
+	main()

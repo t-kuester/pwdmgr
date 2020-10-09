@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf8 -*-
 
-"""Data model for simple Passwort Manager.
+"""Data model for simple Password Manager.
 by Tobias Küster, 2018
 
 Data model for stored passwords, with attributes such as a label, username and
@@ -13,6 +13,7 @@ from typing import List
 import json
 
 ATTRIBUTES = "label", "username", "password", "email", "url", "notes", "tags", "last_changed"
+
 
 class Password:
 	"""Class representing a single password.
@@ -55,7 +56,8 @@ def load_from_json(json_str: str) -> List[Password]:
 	"""Load password configuration from JSON string.
 	"""
 	return [Password(**d) for d in json.loads(json_str)]
-	
+
+
 def write_to_json(passwords: List[Password]) -> str:
 	"""Store password configuration in JSON string.
 	"""
@@ -68,10 +70,12 @@ def create_test_passwords(n: int = 5) -> List[Password]:
 	"""
 	return [Password(**{a: f"{a}{i}" for a in ATTRIBUTES}) for i in range(n)]
 
+
 def create_test_config() -> Configuration:
 	"""Create dummy config for testing.
 	"""
 	return Configuration(input("Enter Mail for testing: "), "test.json")
+
 
 def test():
 	"""Just for testing basic creation and JSON serialization.
@@ -83,6 +87,7 @@ def test():
 	print(pwds)
 	print(pwds2)
 	assert pwds == pwds2
+
 
 # testing stuff
 if __name__ == "__main__":

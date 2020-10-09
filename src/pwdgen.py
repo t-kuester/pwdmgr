@@ -14,6 +14,7 @@ optional arguments:
 
 import random, string, argparse
 
+
 def generate(num=20, lower=True, upper=True, digit=True, punct=True, specl=None):
 	""" Generate a random password of given length with given character
 	groups.	Even if character group is selected, password is not guaranteed
@@ -26,10 +27,11 @@ def generate(num=20, lower=True, upper=True, digit=True, punct=True, specl=None)
 	                         (specl, specl)) if b]
 	return ''.join(random.choice(random.choice(groups)) for _ in range(num))
 
+
 def main():
 	""" for use from command line
 	"""
-	parser = argparse.ArgumentParser(description = "Simple Password Generator")
+	parser = argparse.ArgumentParser(description="Simple Password Generator")
 	parser.add_argument("-n, --num", type=int, default=10, dest="num", help="Number of characters")
 	parser.add_argument("-l, --lower", action='store_true', dest="lower", help="Allow lowercase characters?")
 	parser.add_argument("-u, --upper", action='store_true', dest="upper", help="Allow uppercase characters?")
@@ -44,5 +46,6 @@ def main():
 
 	print(generate(args.num, args.lower, args.upper, args.digit, args.punct, args.specl))
 	
+
 if __name__ == "__main__":
 	main()

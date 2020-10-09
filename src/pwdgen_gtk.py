@@ -4,7 +4,7 @@
 """User interface for Password Generator.
 by Tobias Küster, 2020
 
-Super-minimalisitc GTK UI for the Password Generator, to be used on its own or
+Super-minimalistic GTK UI for the Password Generator, to be used on its own or
 integrated into the Password Manager. Provides toggle buttons for the different
 character groups and a spin button for number of characters and a text field.
 """
@@ -14,6 +14,7 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 import pwdgen
+
 
 class PwdGenFrame:
 	"""Wrapper-class for the Password Generator Frame, with widgets and callbacks.
