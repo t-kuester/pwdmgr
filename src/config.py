@@ -13,7 +13,7 @@ from pwdmgr_model import Configuration
 
 USER_DIR = os.environ["HOME"]
 CONFIG_PATH = os.path.join(USER_DIR, ".config", "t-kuester")
-CONFIG_FILE = os.path.join(CONFIG_PATH, "pwdmgr")
+CONFIG_FILE = os.path.join(CONFIG_PATH, "pwdmgr.json")
 
 
 def load_config() -> Configuration:

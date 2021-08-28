@@ -16,12 +16,15 @@ Should hopefully provide a better UX than Tkinter.
 TODO (small ones; bigger ones are in Github Issues)
 - scroll to newly created password (seems to be not so easy...)
 - add "undo change" button?
-- try to enable sorting on top of filtering again
+- show changes on exit
+- sort by drag&drop or sort by column?
 """
 
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
+
+from collections import Counter
 
 import pwdmgr_core, pwdmgr_model, config
 import pwdgen_gtk
@@ -68,6 +71,7 @@ class PwdMgrFrame:
 		header.pack_start(self.search, False, False, 0)
 		header.pack_start(self.mod_only, False, False, 10)
 		header.pack_start(create_button("Select Columns", self.do_filter_columns, is_icon=False), False, False, 0)
+		header.pack_start(create_button("Tags", self.do_filter_tags, is_icon=False), False, False, 0)
 		header.pack_start(create_button("Password Generator", self.do_genpwd, is_icon=False), False, False, 0)
 		header.pack_end(create_button("list-remove", self.do_remove, "Mark selected for Removal"), False, False, 0)
 		header.pack_end(create_button("list-add", self.do_add, "Add new Entry"), False, False, 0)
@@ -92,10 +96,18 @@ class PwdMgrFrame:
 		self.window.show_all()
 		
 	def do_filter_columns(self, widget):
-		""" Callback for showing the column-filter-menu; not the actual buttons
+		""" Callback for showing the column-filter menu; not the actual buttons
 		"""
 		self.column_menu.set_relative_to(widget)
 		self.column_menu.show_all()
+	
+	def do_filter_tags(self, widget):
+		""" Callback for showing the tag-filter menu; not the actual buttons
+		Other than the Columns menu, the tags menu is created anew each time
+		"""
+		tag_menu = self.create_tags_menu()
+		tag_menu.set_relative_to(widget)
+		tag_menu.show_all()
 	
 	def do_filter(self, widget):
 		""" Callback for filtering; basically just delegate to the actual filter
@@ -214,6 +226,23 @@ class PwdMgrFrame:
 		
 		menu = Gtk.Popover()
 		menu.add(vbox)
+		menu.set_position(Gtk.PositionType.BOTTOM)
+		return menu
+	
+	def create_tags_menu(self):
+		""" Create Popover menu with buttons for filtering by tags
+		"""
+		grid = Gtk.Grid()
+		idx_tags = pwdmgr_model.ATTRIBUTES.index("tags")
+		tags = Counter(tag.strip() for vals in self.store for tag in vals[idx_tags].split(","))
+		for i, (tag, count) in enumerate(sorted(tags.most_common())):
+			def clicked(*args, tag=tag):
+				self.search.set_text(tag)
+			button = create_button(f"{tag} ({count})", clicked, is_icon=False)
+			grid.attach(button, i // 10, i % 10, 1, 1)
+		
+		menu = Gtk.Popover()
+		menu.add(grid)
 		menu.set_position(Gtk.PositionType.BOTTOM)
 		return menu
 	

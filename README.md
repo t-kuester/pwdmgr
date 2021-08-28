@@ -30,7 +30,7 @@ Configuration and File Formats
 When the program is first executed, it will ask for the user's e-mail address
 (used only for knowing for whom to encrypt the passwords) and the location of
 the actual password file. The program's configuration is then stored in a JSON
-file in `~/.config/t-kuester/pwdmgr`.
+file in `~/.config/t-kuester/pwdmgr.json`.
 
 The passwords are stored in a separate encrypted JSON file. When decrypted, the
 format of the file would be as follows. The file is _never_ stored in this format
@@ -71,6 +71,7 @@ but can otherwise be used entirely through the graphical UI.
 * Select Columns: select which of the attributes to show/hide; while actually
   not intended, this can also be used to temporarily re-order the columns by
   hiding them and then re-showing them in the desired order
+* Tags: show existing tags and how often they are used, allows to filter by tags
 * (Plus): add a new password entry at the bottom of the list
 * (Minus): mark the selected password entry for deletion (press again to un-mark)
 * (Close): if there have been any changes in the current session, ask the user
