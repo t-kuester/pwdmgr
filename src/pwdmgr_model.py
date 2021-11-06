@@ -8,7 +8,6 @@ Data model for stored passwords, with attributes such as a label, username and
 password, tags, date of last change, etc.
 """
 
-# from config import *
 from typing import List
 import json
 

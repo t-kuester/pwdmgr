@@ -8,11 +8,14 @@ This module handles loading, saving, and most importantly, encrypting and
 decrypting the password files.
 """
 
-from config import *
-from pwdmgr_model import load_from_json, write_to_json, Configuration, Password
+import os
+import shutil
 from typing import List
-import os, shutil
+
 import gnupg
+
+from config import USER_DIR
+from pwdmgr_model import load_from_json, write_to_json, Configuration, Password
 
 
 def load_decrypt(config: Configuration) -> List[Password]:
@@ -33,12 +36,12 @@ def save_encrypt(config: Configuration, passwords: List[Password]):
 	"""
 	print("ecrypting...")
 	gpg = gnupg.GPG(gnupghome=USER_DIR + "/.gnupg")
-	
+
 	if os.path.isfile(config.filename):
 		shutil.copy(config.filename, config.filename + ".bak")
 	with open(config.filename, "w") as f:
-		s = write_to_json(passwords)
-		crypt = gpg.encrypt(s, config.usermail)
+		plain = write_to_json(passwords)
+		crypt = gpg.encrypt(plain, config.usermail)
 		if crypt.ok:
 			f.write(str(crypt))
 		else:
@@ -57,6 +60,6 @@ def test():
 	assert pwds == pwds2
 
 
-# testing stuff	
+# testing stuff
 if __name__ == "__main__":
 	test()

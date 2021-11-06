@@ -7,9 +7,11 @@ This file contains some variables for global configuration, such as some
 useful defaults etc.
 """
 
-import os
 import json
+import os
+
 from pwdmgr_model import Configuration
+
 
 USER_DIR = os.environ["HOME"]
 CONFIG_PATH = os.path.join(USER_DIR, ".config", "t-kuester")

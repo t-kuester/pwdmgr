@@ -12,7 +12,9 @@ optional arguments:
   -p, --punct    Allow punctuation characters?
 """
 
-import random, string, argparse
+import argparse
+import random
+import string
 
 
 def generate(num=20, lower=True, upper=True, digit=True, punct=True, specl=None):
@@ -45,7 +47,7 @@ def main():
 		exit(1)
 
 	print(generate(args.num, args.lower, args.upper, args.digit, args.punct, args.specl))
-	
+
 
 if __name__ == "__main__":
 	main()
