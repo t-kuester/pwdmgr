@@ -1,0 +1,9 @@
+- [ ] draft new TK ui, see if it all works without much functionality behind it
+  - [ ] basic read-only tree view showing passwords
+  - [ ] list view for groups, filter tree accordingly
+  - [ ] create/edit password dialogue
+  - [ ] create/edit config dialogue
+- [ ] connect new ui to old model
+- [ ] new model using dataclasses
+- [ ] select password file on startup
+- [ ] implement alternative encryption methods
