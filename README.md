@@ -22,7 +22,7 @@ What this does _not_
 
 What you need for this to work
 ------------------------------
-* set up GPG on your computer and install the `gnupg` module for Python
+* set up GPG on your computer and install the `python-gnupg` module for Python
 * run `python3 pwdmgr_gtk.py`
 
 Configuration and File Formats
