@@ -127,8 +127,11 @@ class PwdMgrFrame:
 		if new_passwords != self.original_passwords:
 			if ask_dialog(self.window, "Save Changes?", "Select 'No' to review changes"):
 				print("saving...")
-				pwdmgr_core.save_encrypt(self.conf, new_passwords)
-				return False
+				try:
+					pwdmgr_core.save_encrypt(self.conf, new_passwords)
+					return False
+				except Exception as e:
+					return not ask_dialog(self.window, f"Encryption failed:\n{e}\nExit Anyway?")
 			else:
 				return not ask_dialog(self.window, "Exit Anyway?")
 		return False
