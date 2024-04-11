@@ -36,16 +36,15 @@ def save_encrypt(config: Configuration, passwords: List[Password]):
 	"""
 	print("ecrypting...")
 	gpg = gnupg.GPG(gnupghome=USER_DIR + "/.gnupg")
-
-	if os.path.isfile(config.filename):
-		shutil.copy(config.filename, config.filename + ".bak")
-	with open(config.filename, "w") as f:
-		plain = write_to_json(passwords)
-		crypt = gpg.encrypt(plain, config.usermail)
-		if crypt.ok:
+	plain = write_to_json(passwords)
+	crypt = gpg.encrypt(plain, config.usermail, always_trust=True)
+	if crypt.ok:
+		if os.path.isfile(config.filename):
+			shutil.copy(config.filename, config.filename + ".bak")
+		with open(config.filename, "w") as f:
 			f.write(str(crypt))
-		else:
-			raise Exception(crypt.status)
+	else:
+		raise Exception(crypt.status)
 
 
 def test():
